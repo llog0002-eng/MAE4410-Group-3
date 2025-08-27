@@ -4,6 +4,7 @@ import numpy as np
 ### TODO
 
 # Add different betaw values for the relevant stage of flight
+# Add one engine inoperative condition
 
 ### INPUTS
 rho0 = 1.225 # Sea level air density, kg/m3
@@ -70,8 +71,8 @@ WS = np.linspace(WSstart, WSend, n)
 a0_cruise = 0.8 # Throttle setting in cruise
 a0d_cruise = a0_cruise * (1 + av * Vmax/c) # Airspeed performance correction
 alphae_cruise = a0d_cruise * (rhorho0)**a # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, cruise
-PWmaxspeed = (1/2 * rho * Vmax**2 * CD0) / alphae_cruise * (1/WS) + ((2 * K * betaw) / (alphae_cruise * rho * Vmax**2)) * WS
-plt.plot(WS,PWmaxspeed,label="Max speed at altitude")
+TWmaxspeed = (1/2 * rho * Vmax**2 * CD0) / alphae_cruise * (1/WS) + ((2 * K * betaw) / (alphae_cruise * rho * Vmax**2)) * WS
+plt.plot(WS,TWmaxspeed,label="Max speed at altitude")
 
 
 ### T/O distance requirement
@@ -95,16 +96,16 @@ W = WS * S # Weight, N
 
 # Ground distance estimation
 sg = W * VLOF**2 / (2 * g *(T - D - muwet * (W - LS * S))) # Ground distance length
-PWTOdistgnd = VLOF**2 / (2 * g * sg) + muwet + (DS - muwet * LS) * (1/WS)
+TWTOdistgnd = VLOF**2 / (2 * g * sg) + muwet + (DS - muwet * LS) * (1/WS)
 
-plt.plot(WS,PWTOdistgnd,label="T/O ground distance")
+plt.plot(WS,TWTOdistgnd,label="T/O ground distance")
 
 # Air distance estimation
 DS_air = 1/2 * rho0 * ((V2 + VLOF)/2)**2 * (CD0 + KIGE * CL0TO**2) # Takeoff air drag loading
 sa = W /(T - D) * ((V2**2 - VLOF**2) / (2*g) + hscreen) # Air distance length
-PWTOdistair = 1/sa * ((V2**2 - VLOF**2)/(2*g) + hscreen) + DS_air * (1/WS)
+TWTOdistair = 1/sa * ((V2**2 - VLOF**2)/(2*g) + hscreen) + DS_air * (1/WS)
 
-plt.plot(WS,PWTOdistair,label="T/O air distance")
+plt.plot(WS,TWTOdistair,label="T/O air distance")
 
 ### Climb rate requirement
 Vc = np.sqrt((2*betaw)/(rho0*np.sqrt(CD0/K))*WS) # Optimal climb velocity
@@ -117,7 +118,7 @@ hdot = Vc * np.sin(climba)
 a0d_SSL = a0 * (1 + av * Vmax/c) # Airspeed performance correction
 alphae_SSL = a0d_SSL # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, SSL
 
-PWClimbSSL = betaw/alphae_SSL * (hdot/Vc + rho0*Vc**2*CD0/(2*betaw*WS) + 2*K*betaw/(rho0*Vc**2)*WS)
+TWClimbSSL = betaw/alphae_SSL * (hdot/Vc + rho0*Vc**2*CD0/(2*betaw*WS) + 2*K*betaw/(rho0*Vc**2)*WS)
 
 ### Service ceiling requirement
 Vc = np.sqrt((2*betaw)/(rho*np.sqrt(CD0/K))*WS) # Optimal climb velocity
@@ -128,10 +129,10 @@ D = 1/2 * rho * Vc ** 2 * S * CD # Drag, N
 a0d_ceil = a0 * (1 + av * Vmax/c) # Airspeed performance correction
 alphae_ceil = a0d_ceil * (rhorho0)**a # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, ceiling
 
-PWClimbceil = betaw/alphae_ceil * (hdotceil/Vc + rho*Vc**2*CD0/(2*betaw*WS) + 2*K*betaw/(rho*Vc**2)*WS)
+TWClimbceil = betaw/alphae_ceil * (hdotceil/Vc + rho*Vc**2*CD0/(2*betaw*WS) + 2*K*betaw/(rho*Vc**2)*WS)
 
-plt.plot(WS,PWClimbSSL,label="Climb (sea level)")
-plt.plot(WS,PWClimbceil,label="Climb (ceiling)")
+plt.plot(WS,TWClimbSSL,label="Climb (sea level)")
+plt.plot(WS,TWClimbceil,label="Climb (ceiling)")
 
 ### Stall speed requirement
 
@@ -150,7 +151,7 @@ fig = plt.gcf()
 ax = fig.get_axes()[0]
 ax.set_ylim(bottom=0)
 ylim = ax.get_ylim()
-y1 = np.maximum.reduce([PWmaxspeed,PWTOdistgnd,PWTOdistair,PWClimbSSL,PWClimbceil])
+y1 = np.maximum.reduce([TWmaxspeed,TWTOdistgnd,TWTOdistair,TWClimbSSL,TWClimbceil])
 plt.fill_between(WS, y1, y2=ylim[1], alpha = 0.2, color = "g")
 plt.margins(x=0, y=0)
 
