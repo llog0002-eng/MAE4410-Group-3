@@ -4,6 +4,7 @@ import numpy as np
 ### TODO
 
 # Add different betaw values for the relevant stage of flight
+# Add induced drag and AoA to cruise for max speed requirement 
 
 ### INPUTS
 rho0 = 1.225 # Sea level air density, kg/m3
@@ -16,16 +17,16 @@ betaw_landing = 0.7 # Ratio of actual weight to maximum weight, landing
 Vmax = 250 # Max speed requirement, m/s
 V_stall_max = 60 # Maximum stall speed, m/s
 
-WTO = 133.2e3 # Maximum takeoff weight, kg
+WTO = 127.6e3 # Maximum takeoff weight, kg
 hscreen = 50 * 0.3048 # Screen height, 50 ft (FAR 25), m
 muwet = 0.05 # Friction coefficient for wet sealed
 mudry = 0.03 # Friction coefficient for dry sealed
 c = 295.2 # Speed of sound at 11km, m/s
-climbgrad = 3.3/100 # Minimum climb gradient for takeoff https://www.avfacts.com.au/aaos/inst/inst3.PDF
-hdotceil = 1.27 # Climb rate requirement for ceiling, typical value, m/s
+climbgrad = 10/100 # Minimum climb gradient for takeoff https://www.avfacts.com.au/aaos/inst/inst3.PDF
+hdotceil = 1.27 # Climb rate requirement for ceiling, typical value from notes, m/s
 
 # AERO DEPENDENT
-CD0 = 0.02 # Zero lift drag
+CD0 = 0.011 # Zero lift drag
 K = 0.06 # Induced drag constant
 
 CLmaxclean = 1.8 # Maximum lift coefficient, clean
@@ -39,7 +40,7 @@ b = 65 # Wing span, m
 S = 300 # Wing area, m2
 
 # ENGINE DEPENDENT
-Tmax = 3 * 189.2e3 # Max thrust for 2x Rolls-Royce RB211-535, N
+Tmax = 2 * 189.2e3 # Max thrust for 2x Rolls-Royce RB211-535, N
 a0 = 1 # Default throttle setting
 av = -0.3 # Constant to model decreasing thrust with increasing M
 a = 1 # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
@@ -49,7 +50,7 @@ g = 9.80665 # Gravitational acceleration m2/s
 
 WSact = 4500 # Actual design wing loading
 TWRact = Tmax / (WTO * g) # Actual design thrust to weight ratio
-plt.plot(WSact,TWRact,marker = "o", color = "r", ms = 5)
+plt.plot(WSact,TWRact,marker = "o", color = "r", ms = 4)
 plt.gca().annotate("Design point",(WSact+50, TWRact+0.01))
 
 ### Generate wing loading (x) array
