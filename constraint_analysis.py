@@ -36,7 +36,7 @@ K = 0.0734 # Induced drag constant
 
 h = 3 # Distance of wing above the ground, m
 b = 65 # Wing span, m
-S = 768.39 # Wing area, m2
+S = 776.85 # Wing area, m2
 
 CLcruise = 0.148 
 CLmaxclean = 1.8 # Maximum lift coefficient, clean
@@ -58,7 +58,8 @@ a = 1 # Altitude performance index, between 0.7 and 1 depending on engine altitu
 # CONSTANTS
 g = 9.80665 # Gravitational acceleration m2/s
 
-WSact = 4500 # Actual design wing loading
+WSact = WTO*g/S # Actual design wing loading
+print(WSact)
 TWRact = Tmax / (WTO * g) # Actual design thrust to weight ratio
 plt.plot(WSact,TWRact,marker = "o", color = "r", ms = 4)
 plt.gca().annotate("Design point",(WSact+50, TWRact+0.01))
