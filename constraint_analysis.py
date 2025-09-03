@@ -7,14 +7,20 @@ import numpy as np
 # Add one engine inoperative condition
 
 ### INPUTS
-rho0 = 1.225 # Sea level air density, kg/m3
-rhorho0 = 0.2971 # Ratio of air density and sea level air density
-rho = rhorho0 * rho0 # Operating altitude air density, kg/m3
+rho0 = 1.225                # Sea level air density, kg/m3
+rhorho0 = 0.2971            # Ratio of air density and sea level air density
+rho = rhorho0 * rho0        # Operating altitude air density, kg/m3
 c = 295.2 # Speed of sound at 11km, m/s
 Ma = 0.85
 
-betaw = 1 # Ratio of actual weight to maximum weight
-betaw_landing = 0.7 # Ratio of actual weight to maximum weight, landing
+betaw = 1                   # Ratio of actual weight to maximum weight
+betaw_taxi = 0.99*0.99
+betaw_takeoff = 0.99*0.99*0.995
+betaw_climb = 0.99*0.99*0.995*0.98
+betaw_cruise = 0.99*0.99*0.995*0.98*0.810
+betaw_loiter = 0.99*0.99*0.995*0.98*0.810*0.99
+betaw_descent = 0.99*0.99*0.995*0.98*0.810*0.99*0.99
+betaw_landing = 0.752       # Ratio of actual weight to maximum weight, landing
 
 Vmax = Ma*c # Max speed requirement, m/s
 V_stall_max = 60 # Maximum stall speed, m/s
