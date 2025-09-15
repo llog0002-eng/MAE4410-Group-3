@@ -209,7 +209,6 @@ TWClimbSSL_OEI_clean = betaw_climb/alphae_SSL * (hdot/Vc + rho0*Vc**2*CD0/(2*bet
 
 plt.plot(WS,TWClimbSSL_OEI_clean,label="Climb rate, OEI, landing gear retracted")
 
-"""
 
 
 """
@@ -230,9 +229,9 @@ TWClimbceil = 0.5*rho*Vmax**2*CD0_C/alphae_ceil/WS + 2*K*betaw_climb**2*WS/(alph
 plt.plot(WS,TWClimbceil,label="Maintaining Mach 0.85 at ceiling")
 
 
-"""
-Stall speed requirement
-"""
+
+#Stall speed requirement
+
 WS_stall_speed = rho0 * V_stall_max ** 2 * CL_L / betaw_descent # Wing loading for stall requirement
 
 # Stall speed requirement largely irrelevant...
