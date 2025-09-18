@@ -43,7 +43,7 @@ Wmax = WTO*g
 """
 Engine Dependent
 """
-Tmax = 2 * 189.2e3            # Max thrust for 2x Rolls-Royce RB211-535, N
+Tmax = 2 * 189.2e3          # Max thrust for 2x Rolls-Royce RB211-535, N
 a0 = 1                      # Default throttle setting
 av = -0.3                   # Constant to model decreasing thrust with increasing M
 a = 0.7                     # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
@@ -55,44 +55,44 @@ Aerodynamic Dependent
 K = 0.0646              # Induced drag constant
 
 ### Take Off (AoA = 10 deg)
-CL_TO = 1
-CL0_TO = 0
+CL_TO = 0.7821
+CL0_TO = 0.2201
 CD_TO = 0.0517
-CD0_TO = 0.0096
+CD0_TO = 0.0106
+CLalpha_TO = 3.22  # Lift curve slope, per rad
 
 ### Cruise (AoA = 0 deg)
-CL_C = 0.2657
-CL0_C = 0
-CD_C = 0.0112
-CD0_C = 0.0061
+CL_C = 0.2660
+CL0_C = 0.02959
+CD_C = 0.0124
+CD0_C = 0.00678
 
 ### Landing (AoA = 5 deg)
-CL_L = 0.4521
-CL0_L = 0
-CD_L = 0.0237
-CD0_L = 0.0072
-
-CLalpha = 2*(np.pi) # Lift slope, 1/rad
+CL_L = 0.5063
+CL0_L = 0.2215
+CD_L = 0.0267
+CD0_L = 0.00639
 
 """
 Take-Off Airspeed
 """
 
+theta_LOF = 10*np.pi/180                            # liftoff pitch angle, rad
 
+CL_LOF = CL0_TO + CLalpha_TO * theta_LOF            # Lift coefficient at liftoff
 W_TO = Wmax*betaw_taxi                              # Weight at takeoff, N
 kTO = 1.13
-V_stall_TO = np.sqrt(2 * W_TO/S / (rho0 * CL_TO))   # Stall speed at takeoff, m/s
+V_stall_TO = np.sqrt(2 * W_TO/S / (rho0 * CL_LOF))  # Stall speed at takeoff, m/s
 VR = 1.05 * V_stall_TO                              # Rotate speed, m/s
 VLOF = 1.1 * V_stall_TO                             # Lift-off speed, m/s
 V2 = 1.13 * V_stall_TO                              # Take-off safety speed, m/s
-
-theta_TO = 12*np.pi/180                             # Takeoff pitch angle, rad
 
 a0_TO = 1                                           # Throttle setting in Takeoff
 a0d_TO = a0_TO * (1 + av * VLOF/c0)                 # Airspeed performance correction
 alphae_TO = a0d_TO * (1)**a                         # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, takeoff
 T_TO = Tmax*alphae_TO
 
+theta_TO = theta_LOF                                # Initial takeoff pitch angle, rad
 
 dt_TO = 0.01
 
@@ -108,11 +108,11 @@ speed_too_low = True
 
 while abs(1-Vair_TO/V2) > 0.001 or Vair_TO <= V2 or h_TO < hscreen:
     if abs(1-Vair_TO/V2) > 0.001:
-        print(f'Current airspeed: {Vair_TO}, V2: {V2}, Pitch angle: {theta_TO*180/np.pi}')
+        print(f'Current airspeed: {Vair_TO:.4f}, V2: {V2:.4f}, Pitch angle: {theta_TO*180/np.pi:.4f}')
     elif Vair_TO <= V2:
-        print(f'Current airspeed: {Vair_TO}, V2: {V2}, airspeed too low')
+        print(f'Current airspeed: {Vair_TO:.4f}, V2: {V2:.4f}, airspeed too low')
     elif h_TO < hscreen:
-        print(f'Current height: {h_TO}, screen height: {hscreen}, height too low')
+        print(f'Current height: {h_TO:.4f}, screen height: {hscreen:.4f}, height too low')
     
     h_TO = 0
     iteration_i = 0
@@ -123,7 +123,7 @@ while abs(1-Vair_TO/V2) > 0.001 or Vair_TO <= V2 or h_TO < hscreen:
         CL = W_TO*np.cos(theta_TO) / (0.5*rho0*Vair_TO**2*S)
         CD = CD0_TO + K*CL**2
         D = 0.5*rho0*Vair_TO**2*S*CD
-        AoA_TO = (CL - CL0_TO) / CLalpha  # Angle of attack, rad
+        AoA_TO = (CL - CL0_TO) / CLalpha_TO  # Angle of attack, rad
 
         gamma_TO = theta_TO - AoA_TO # Flight path angle, rad
         Vair_TO += (T_TO - D - W_TO*np.sin(theta_TO))/(W_TO/g) * dt_TO
@@ -166,12 +166,14 @@ while abs(1-Vair_TO/V2) > 0.001 or Vair_TO <= V2 or h_TO < hscreen:
     
 
 
-print(f'The function has iterated {iteration_o} times.\n\nThe final height of the airplane is {h_TO} m.\n\n\
-The final airspeed of takeoff is {Vair_TO} m/s.\n\nThe final air distance is {sair_TO} m.')
+print(f'The function has iterated {iteration_o} times.\n\nThe final height of the airplane is {h_TO:.2f} m.\n\n\
+The final airspeed of takeoff is {Vair_TO:.1f} m/s.\n\nThe final air distance is {sair_TO+3*VLOF:.0f} m.')
 if Vair_TO < V2:
     print(f'The final airspeed of takeoff is {Vair_TO} and it\'s less than the safety speed V2={V2}. VLOF={VLOF}.')
-print(f"The final flight path angle is {gamma_TO*180/np.pi} degrees.")
-print(f"The final pitch angle is {theta_TO*180/np.pi} degrees.")
+print(f"The final flight path angle is {gamma_TO*180/np.pi:.2f} degrees.")
+print(f"The final pitch angle is {theta_TO*180/np.pi:.2f} degrees.")
+print(f"The final angle of attack is {AoA_TO*180/np.pi:.2f} degrees.")
+print(f"The final lift coefficient is {CL:.3f}.")
 
 
 

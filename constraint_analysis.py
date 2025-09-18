@@ -54,24 +54,22 @@ Aerodynamics Dependent
 K = 0.0646              # Induced drag constant
 
 ### Take Off (AoA = 10 deg)
-CL_TO = 0.714
-CL0_TO = 0
+CL_TO = 0.7821
+CL0_TO = 0.2201
 CD_TO = 0.0517
-CD0_TO = 0.02
+CD0_TO = 0.0106
 
 ### Cruise (AoA = 0 deg)
-CL_C = 0.2657
-CL0_C = 0
-CD_C = 0.0112
-CD0_C = 0.0061
+CL_C = 0.2660
+CL0_C = 0.02959
+CD_C = 0.0124
+CD0_C = 0.00678
 
 ### Landing (AoA = 5 deg)
-CL_L = 0.4521
-CL0_L = 0
-CD_L = 0.0237
-CD0_L = 0.0072
-
-CLalpha = 2*(np.pi)**2/180 # Lift slope, 1/deg
+CL_L = 0.5063
+CL0_L = 0.2215
+CD_L = 0.0267
+CD0_L = 0.00639
 
 
 """
@@ -138,7 +136,7 @@ L = LS * S      # Lift, N
 W = WS * S      # Weight, N
 
 # Air distance requirement
-sa = 800 # Air distance (m)
+sa = 415 # Air distance (m)
 TWTOdistair = 1/sa * ((V2**2 - VLOF**2)/(2*g) + hscreen) + DS * (1/WS)
 
 # Ground distance requirement
