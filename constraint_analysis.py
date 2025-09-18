@@ -1,3 +1,4 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -14,7 +15,7 @@ rhorho0 = 0.2978            # Ratio of air density and sea level air density
 rho = rhorho0 * rho0        # Operating altitude air density, kg/m3
 c0 = 340.3                  # Speed of sound at SSL
 c = 295.2                   # Speed of sound at 11km, m/s
-Ma = 0.85
+Ma = 0.85 # Cruise speed, Ma
 
 betaw = 1                   # Ratio of actual weight to maximum weight
 betaw_taxi = 0.99*0.99
@@ -26,17 +27,18 @@ betaw_descent = 0.99*0.99*0.995*0.98*0.810*0.99*0.99
 betaw_landing = 0.752       # Ratio of actual weight to maximum weight, landing
 
 Vmax = Ma*c # Max speed requirement, m/s
-V_stall_max = 60 # Maximum stall speed, m/s
+V_stall_max = 74.5 # Maximum stall speed, m/s
+sTO = 2200 # Maximum overall takeoff distance, m
 
 WTO = 118.8e3 # Maximum takeoff weight, kg
 hscreen = 50 * 0.3048 # Screen height, 50 ft (FAR 25), m
 muwet = 0.05 # Friction coefficient for wet sealed
 mudry = 0.03 # Friction coefficient for dry sealed
 
-
-climbgrad_oei_landgear = 0      # Minimum climb gradient for one engine inoperative (OEI) with landing gear extended, CASA part 121, section 9.05
-climbgrad_oei_clean = 2/100     # Minimum climb gradient for one engine inoperative (OEI) with landing gear retracted, CASA part 121, section 9.05
-hdotceil = 1.27                 # Climb rate requirement for ceiling, typical value, m/s
+climbgrad = 3.3/100 # Minimum climb gradient for takeoff https://www.avfacts.com.au/aaos/inst/inst3.PDF
+climbgrad_oei_landgear = 0 # Minimum climb gradient for one engine inoperative (OEI) with landing gear extended, CASA part 121, section 9.05
+climbgrad_oei_clean = 2/100 # Minimum climb gradient for one engine inoperative (OEI) with landing gear retracted, CASA part 121, section 9.05
+hdotceil = 1.27 # Climb rate requirement for ceiling, typical value, m/s
 
 h = 3               # Distance of wing above the ground, m
 b = 60.2              # Wing span, m
@@ -128,7 +130,6 @@ VR = 1.05 * V_stall_TO                          # Rotate speed, m/s
 VLOF = 1.1 * V_stall_TO                         # Lift-off speed, m/s
 V2 = 1.13 * V_stall_TO                          # Take-off safety speed, m/s
 
-####################### REPLACE CLmaxTO WITH CL0 + CL_alpha * alpha IF NOT TAKING OFF AT MAX CL
 KIGE = K * (16 * (h/b) ** 2) / (1 + 16 * (h/b) ** 2) # McCormick induced drag constant adjusted for ground effect
 if KIGE/K < 0.5:
     KIGE = 0.5 * K
@@ -168,12 +169,12 @@ plt.plot(WS,TWTOdistair,label="T/O air distance")
 """
 Climb Rate Requirement
 """
-# Vc = np.sqrt((2*betaw_takeoff)/(rho0*np.sqrt(CD0_TO/K))*WS) # Optimal climb velocity
-# # CL = np.sqrt(CD0/K) # Lift coefficient, assuming max climb rate occurs at max L/D
-# # CD = CD0 + K * CL ** 2 # Drag coefficient at max L/D
-# # D = 1/2 * rho0 * Vc ** 2 * S * CD # Drag, N
-# climba = np.arctan(climbgrad) # Climb angle, rad
-# hdot = Vc * np.sin(climba)
+Vc = np.sqrt((2*betaw_takeoff)/(rho0*np.sqrt(CD0_TO/K))*WS) # Optimal climb velocity
+# CL = np.sqrt(CD0/K) # Lift coefficient, assuming max climb rate occurs at max L/D
+# CD = CD0 + K * CL ** 2 # Drag coefficient at max L/D
+# D = 1/2 * rho0 * Vc ** 2 * S * CD # Drag, N
+climba = np.arctan(climbgrad) # Climb angle, rad
+hdot = Vc * np.sin(climba)
 
 # a0d_SSL = a0 * (1 + av * V2/c0) # Airspeed performance correction
 # alphae_SSL = a0d_SSL # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, SSL
@@ -185,9 +186,9 @@ Climb Rate Requirement
 
 
 ### Climb rate requirement, one engine inoperative, landing gear not retracted
-Vc = np.sqrt((2*betaw_takeoff)/(rho0*np.sqrt(CD0_TO/K))*WS) # Optimal climb velocity
-CL = np.sqrt(CD0_TO/K) # Lift coefficient, assuming max climb rate occurs at max L/D
-CD = CD0_TO + K * CL ** 2 # Drag coefficient at max L/D
+Vc = np.sqrt((2*betaw)/(rho0*np.sqrt(CD0_landing_gear/K))*WS) # Optimal climb velocity
+CL = np.sqrt(CD0/K) # Lift coefficient, assuming max climb rate occurs at max L/D
+CD = CD0 + K * CL ** 2 # Drag coefficient at max L/D
 D = 1/2 * rho0 * Vc ** 2 * S * CD # Drag, N
 climba = np.arctan(climbgrad_oei_landgear) # Climb angle, rad
 hdot = Vc * np.sin(climba)
@@ -195,14 +196,14 @@ hdot = Vc * np.sin(climba)
 a0d_SSL = a0 * (1 + av * Vc/c0) # Airspeed performance correction
 alphae_SSL = a0d_SSL # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, SSL
 
-TWClimbSSL_OEI_LG = betaw_takeoff/alphae_SSL * (hdot/Vc + rho0*Vc**2*CD0_TO/(2*betaw_takeoff*WS) + 2*K*betaw_takeoff/(rho0*Vc**2)*WS)
+TWClimbSSL_OEI_LG = betaw/alphae_SSL * (hdot/Vc + rho0*Vc**2*CD0/(2*betaw*WS) + 2*K*betaw/(rho0*Vc**2)*WS)
 
-plt.plot(WS,TWClimbSSL_OEI_LG,label="Climb rate, OEI landing gear extended")
+plt.plot(WS,TWClimbSSL_OEI_LG,label="Climb rate, OEI, landing gear extended")
 
 ### Climb rate requirement, one engine inoperative, landing gear retracted
-Vc = np.sqrt((2*betaw_takeoff)/(rho0*np.sqrt(CD0_C/K))*WS) # Optimal climb velocity
-CL = np.sqrt(CD0_C/K) # Lift coefficient, assuming max climb rate occurs at max L/D
-CD = CD0_C + K * CL ** 2 # Drag coefficient at max L/D
+Vc = np.sqrt((2*betaw)/(rho0*np.sqrt(CD0/K))*WS) # Optimal climb velocity
+CL = np.sqrt(CD0/K) # Lift coefficient, assuming max climb rate occurs at max L/D
+CD = CD0 + K * CL ** 2 # Drag coefficient at max L/D
 D = 1/2 * rho0 * Vc ** 2 * S * CD # Drag, N
 climba = np.arctan(climbgrad_oei_clean) # Climb angle, rad
 hdot = Vc * np.sin(climba)
@@ -210,9 +211,9 @@ hdot = Vc * np.sin(climba)
 a0d_SSL = a0 * (1 + av * Vc/c0) # Airspeed performance correction
 alphae_SSL = a0d_SSL # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, SSL
 
-TWClimbSSL_OEI_clean = betaw_takeoff/alphae_SSL * (hdot/Vc + rho0*Vc**2*CD0_C/(2*betaw_takeoff*WS) + 2*K*betaw_takeoff/(rho0*Vc**2)*WS)
+TWClimbSSL_OEI_clean = betaw/alphae_SSL * (hdot/Vc + rho0*Vc**2*CD0/(2*betaw*WS) + 2*K*betaw/(rho0*Vc**2)*WS)
 
-plt.plot(WS,TWClimbSSL_OEI_clean,label="Climb rate, OEI landing gear retracted")
+plt.plot(WS,TWClimbSSL_OEI_clean,label="Climb rate, OEI, landing gear retracted")
 
 
 
@@ -234,15 +235,17 @@ TWClimbceil = 0.5*rho*Vmax**2*CD0_C/alphae_ceil/WS + 2*K*betaw_climb**2*WS/(alph
 plt.plot(WS,TWClimbceil,label="Maintaining Mach 0.85 at ceiling")
 
 
-"""
-Stall speed requirement
-"""
+
+#Stall speed requirement
+
 WS_stall_speed = rho0 * V_stall_max ** 2 * CL_L / betaw_descent # Wing loading for stall requirement
 
 # Stall speed requirement largely irrelevant...
-plt.axvline(WS_stall_speed, label = "Stall speed")
+# plt.axvline(WS_stall_speed, label = "Stall speed")
 
 ### Plot
+mpl.rc("savefig", dpi=300)
+
 plt.title("Constraint Analysis")
 plt.xlabel("Wing loading (N/m2)")
 plt.ylabel("Thrust-to-Weight Ratio")
@@ -258,7 +261,7 @@ plt.margins(x=0, y=0)
 
 ### Plot
 plt.xlabel("Wing loading (N/m2)")
-plt.ylabel("Power loading (TWR)")
+plt.ylabel("Thrust to weight ratio (TWR)")
 plt.legend(loc = "upper right")
 plt.ylim((0,1))
 plt.show()
