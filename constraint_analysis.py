@@ -138,7 +138,7 @@ L = LS * S      # Lift, N
 W = WS * S      # Weight, N
 
 # Air distance requirement
-sa = 200 # Air distance (m)
+sa = 800 # Air distance (m)
 TWTOdistair = 1/sa * ((V2**2 - VLOF**2)/(2*g) + hscreen) + DS * (1/WS)
 
 # Ground distance requirement
@@ -149,8 +149,8 @@ TWTOdistgnd = VLOF**2 / (2 * g * sg) + mudry + (DS - mudry * LS) * (1/WS)
 sg_act = 0.5 * WTO * VLOF[index]**2 / (Tmax - D[index] - mudry * (WTO * g - L[index]))
 sa_act = WSact * S / (Tmax - D[index]) * ((V2[index]**2 - VLOF[index]**2)/(2*g) + hscreen)
 
-print(f"Takeoff ground distance at design point: {sg_act} m")
-print(f"Takeoff air distance at design point: {sa_act} m")
+print(f"Takeoff ground distance at design point: {sg_act[0]} m")
+print(f"Takeoff air distance at design point: {sa_act[0]} m")
 
 plt.plot(WS,TWTOdistgnd,label="T/O ground distance")
 plt.plot(WS,TWTOdistair,label="T/O air distance")
