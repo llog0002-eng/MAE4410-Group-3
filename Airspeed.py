@@ -22,8 +22,8 @@ betaw_landing = 0.752       # Ratio of actual weight to maximum weight, landing
 Vmax = Ma*c                 # Max speed requirement, m/s
 V_stall_max = 60            # Maximum stall speed, m/s
 
-WTO = 118.8e3               # Maximum takeoff weight, kg
-WOE = 57.4e3
+WTO = 99.9e3               # Maximum takeoff weight, kg
+WOE = 43e3
 Wpay = 26.06e3
 hscreen = 50 * 0.3048       # Screen height, 50 ft (FAR 25), m
 muwet = 0.05                # Friction coefficient for wet sealed

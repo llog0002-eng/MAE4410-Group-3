@@ -18,19 +18,20 @@ c = 295.2                   # Speed of sound at 11km, m/s
 Ma = 0.85 # Cruise speed, Ma
 
 betaw = 1                   # Ratio of actual weight to maximum weight
-betaw_taxi = 0.99*0.99
-betaw_takeoff = 0.99*0.99*0.995
-betaw_climb = 0.99*0.99*0.995*0.98
-betaw_cruise = 0.99*0.99*0.995*0.98*0.810
-betaw_loiter = 0.99*0.99*0.995*0.98*0.810*0.99
-betaw_descent = 0.99*0.99*0.995*0.98*0.810*0.99*0.99
-betaw_landing = 0.752       # Ratio of actual weight to maximum weight, landing
+betaw_taxi = 0.99
+betaw_takeoff = 0.99*0.99
+betaw_climb = 0.99*0.99*0.995
+betaw_cruise = 0.99*0.99*0.995*0.98
+betaw_loiter = 0.99*0.99*0.995*0.98*0.854
+betaw_descent = 0.99*0.99*0.995*0.98*0.854*0.991
+betaw_landing = 0.99*0.99*0.995*0.98*0.854*0.991*0.99       # Ratio of actual weight to maximum weight, landing
 
 Vmax = Ma*c # Max speed requirement, m/s
+print(Vmax)
 V_stall_max = 74.5 # Maximum stall speed, m/s
 sTO = 2200 # Maximum overall takeoff distance, m
 
-WTO = 118.8e3 # Maximum takeoff weight, kg
+WTO = 99.9e3 # Maximum takeoff weight, kg
 hscreen = 50 * 0.3048 # Screen height, 50 ft (FAR 25), m
 muwet = 0.05 # Friction coefficient for wet sealed
 mudry = 0.03 # Friction coefficient for dry sealed
