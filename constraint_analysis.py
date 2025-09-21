@@ -18,19 +18,20 @@ c = 295.2                   # Speed of sound at 11km, m/s
 Ma = 0.85 # Cruise speed, Ma
 
 betaw = 1                   # Ratio of actual weight to maximum weight
-betaw_taxi = 0.99*0.99
-betaw_takeoff = 0.99*0.99*0.995
-betaw_climb = 0.99*0.99*0.995*0.98
-betaw_cruise = 0.99*0.99*0.995*0.98*0.810
-betaw_loiter = 0.99*0.99*0.995*0.98*0.810*0.99
-betaw_descent = 0.99*0.99*0.995*0.98*0.810*0.99*0.99
-betaw_landing = 0.752       # Ratio of actual weight to maximum weight, landing
+betaw_taxi = 0.99
+betaw_takeoff = 0.99*0.99
+betaw_climb = 0.99*0.99*0.995
+betaw_cruise = 0.99*0.99*0.995*0.98
+betaw_loiter = 0.99*0.99*0.995*0.98*0.854
+betaw_descent = 0.99*0.99*0.995*0.98*0.854*0.991
+betaw_landing = 0.99*0.99*0.995*0.98*0.854*0.991*0.99       # Ratio of actual weight to maximum weight, landing
 
 Vmax = Ma*c # Max speed requirement, m/s
+print(Vmax)
 V_stall_max = 74.5 # Maximum stall speed, m/s
 sTO = 2200 # Maximum overall takeoff distance, m
 
-WTO = 118.8e3 # Maximum takeoff weight, kg
+WTO = 99.9e3 # Maximum takeoff weight, kg
 hscreen = 50 * 0.3048 # Screen height, 50 ft (FAR 25), m
 muwet = 0.05 # Friction coefficient for wet sealed
 mudry = 0.03 # Friction coefficient for dry sealed
@@ -54,24 +55,22 @@ Aerodynamics Dependent
 K = 0.0646              # Induced drag constant
 
 ### Take Off (AoA = 10 deg)
-CL_TO = 0.714
-CL0_TO = 0
+CL_TO = 0.7821
+CL0_TO = 0.2201
 CD_TO = 0.0517
-CD0_TO = 0.02
+CD0_TO = 0.0106
 
 ### Cruise (AoA = 0 deg)
-CL_C = 0.2657
-CL0_C = 0
-CD_C = 0.0112
-CD0_C = 0.0061
+CL_C = 0.2660
+CL0_C = 0.02959
+CD_C = 0.0124
+CD0_C = 0.00678
 
 ### Landing (AoA = 5 deg)
-CL_L = 0.4521
-CL0_L = 0
-CD_L = 0.0237
-CD0_L = 0.0072
-
-CLalpha = 2*(np.pi)**2/180 # Lift slope, 1/deg
+CL_L = 0.5063
+CL0_L = 0.2215
+CD_L = 0.0267
+CD0_L = 0.00639
 
 
 """
@@ -138,7 +137,7 @@ L = LS * S      # Lift, N
 W = WS * S      # Weight, N
 
 # Air distance requirement
-sa = 800 # Air distance (m)
+sa = 415 # Air distance (m)
 TWTOdistair = 1/sa * ((V2**2 - VLOF**2)/(2*g) + hscreen) + DS * (1/WS)
 
 # Ground distance requirement
