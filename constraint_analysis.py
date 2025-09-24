@@ -150,6 +150,7 @@ sa_act = WSact * S / (Tmax - D[index]) * ((V2[index]**2 - VLOF[index]**2)/(2*g) 
 
 print(f"Takeoff ground distance at design point: {sg_act[0]} m")
 print(f"Takeoff air distance at design point: {sa_act[0]} m")
+print(f'Total takeoff distance at design point: {sg_act[0]+sa_act[0]}')
 
 plt.plot(WS,TWTOdistgnd,label="T/O ground distance")
 plt.plot(WS,TWTOdistair,label="T/O air distance")

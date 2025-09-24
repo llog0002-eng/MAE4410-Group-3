@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 """
 General INPUTS
@@ -96,7 +97,7 @@ T_TO = Tmax*alphae_TO
 
 theta_TO = theta_LOF                                # Initial takeoff pitch angle, rad
 
-dt_TO = 0.000001
+dt_TO = 0.01
 
 
 # Initialise variables
@@ -109,12 +110,12 @@ sair_TO = 0
 speed_too_low = True
 
 while abs(1-Vair_TO/V2) > 0.001 or Vair_TO <= V2 or h_TO < hscreen:
-    if abs(1-Vair_TO/V2) > 0.001:
-        print(f'Current airspeed: {Vair_TO}, V2: {V2}, Pitch angle: {theta_TO*180/np.pi}')
-    elif Vair_TO <= V2:
-        print(f'Current airspeed: {Vair_TO}, V2: {V2}, airspeed too low')
-    elif h_TO < hscreen:
-        print(f'Current height: {h_TO}, screen height: {hscreen}, height too low')
+    # if abs(1-Vair_TO/V2) > 0.001:
+    #     print(f'Current airspeed: {Vair_TO}, V2: {V2}, Pitch angle: {theta_TO*180/np.pi}')
+    # elif Vair_TO <= V2:
+    #     print(f'Current airspeed: {Vair_TO}, V2: {V2}, airspeed too low')
+    # elif h_TO < hscreen:
+    #     print(f'Current height: {h_TO}, screen height: {hscreen}, height too low')
     
     h_TO = 0
     iteration_i = 0
@@ -183,17 +184,97 @@ print(f"The final pitch angle is {theta_TO*180/np.pi} degrees.")
 """
 Climb
 """
-# theta_C = 0
-# AoA_C = 10*np.pi/180
-# W_C = Wmax*betaw_takeoff
-# alpha_p = AoA_C
+W_C = Wmax*betaw_takeoff
+a0_C = 0.8                                           # Throttle setting in Takeoff
+a0d_C = a0_C * (1 + av * Vmax/c)                 # Airspeed performance correction
+alphae_C = a0d_C * (1)**a                         # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, takeoff
+T_C = Tmax*alphae_C
 
-# theta_old = theta_C
-# theta_new = theta_C
-# while theta_new-theta_old >= 0.1:
-#     theta_old = theta_new
-#     L = W_C*np.cos(theta_old) - Tmax*np.sin(alpha_p)
-#     CL = L/(0.5*rho0*)
+Air_rho = lambda h: rho0*np.exp(-h/8e3)
+
+dt_C = 0.1
+ip = 0
+tol = 0.001
+step = 0.01
+Vair_C = np.arange(50, 300+step, step)
+gamma_C_list = []
+theta_C_list = []
+h_C_list = []
+n_list = []
+AoA_list = []
+
+for V in Vair_C:
+    error = tol
+    theta_C = 0
+    AoA_C = 0
+    AoA_p = AoA_C + ip
+    h = 15
+    n = 0
+    while error >= tol:
+        theta_C_old = theta_C
+        # rho = Air_rho(h)
+        L = W_C*np.cos(theta_C) - T_C*np.sin(AoA_p)
+        CL = L/(0.5*rho*V**2*S)       
+        D = 0.5*rho*V**2*S*(CD0_C+K*CL_C**2)
+        gamma_C = np.arctan( (T_C*np.cos(AoA_p)-D) / (L+T_C*np.sin(AoA_p)))
+        # print((T_C*np.cos(alphae_p)-D))
+        # print((L+T_C*np.sin(alphae_p)))
+        # print(gamma_C*180/np.pi)
+
+        AoA_C = (CL-CL0_C)/CLalpha_TO
+        AoA_p = AoA_C + ip
+        theta_C = gamma_C + AoA_C
+        hdot = V*np.sin(gamma_C)
+        # h += hdot*dt_C
+
+        n += 1
+
+        error = np.abs(theta_C - theta_C_old)
+    gamma_C_list.append(gamma_C)
+    theta_C_list.append(theta_C)
+    n_list.append(n)
+    AoA_list.append(AoA_p)
+    # h_C_list.append(h)
+gamma_C_list = np.array(gamma_C_list)
+theta_C_list = np.array(theta_C_list)
+h_C_list = np.array(h_C_list)
+n_list = np.array(n_list)
+AoA_list = np.array(AoA_list)
+
+max_thetae = np.max(gamma_C_list)
+max_rate_index = np.where(gamma_C_list == max_thetae)
+
+
+
+
+print(f'\nTme maximum climb rate is {max_thetae} rad = {max_thetae*180/np.pi} degrees\
+\nOccus at Airspeed={Vair_C[max_rate_index]} m/s, V2 = {V2} m/s')
+
+
+
+print(f'')
+
+plt.figure('Climb rate')
+plt.plot(Vair_C, gamma_C_list, '.', ms = 2)
+plt.plot(Vair_C[max_rate_index], gamma_C_list[max_rate_index], '*', ms = 3, color = 'red')
+plt.xlabel("Air speed [m/s]")
+plt.ylabel("Climb rate gamma [rad]")
+
+plt.figure('Climb angle')
+plt.plot(Vair_C, theta_C_list, '.', ms = 2)
+plt.plot(Vair_C[max_angle_index], theta_C_list[max_angle_index], '*', ms = 3, color = 'red')
+plt.xlabel("Air speed [m/s]")
+plt.ylabel("Climb angle theta [rad]")
+
+# plt.figure("Number of ieration")
+# plt.plot(Vair_C, n_list, '.', ms = 2)
+
+# plt.figure('Height')
+# plt.plot(Vair_C, h_C_list, '.', ms = 2)
+# plt.xlabel("Air speed [m/s]")
+# plt.ylabel("Height [m]")
+
+plt.show()
 
 
 """
