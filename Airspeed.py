@@ -11,13 +11,13 @@ c = 295.2                   # Speed of sound at 11km, m/s
 Ma = 0.85
 
 betaw = 1                   # Ratio of actual weight to maximum weight
-betaw_taxi = 0.99*0.99
-betaw_takeoff = 0.99*0.99*0.995
-betaw_climb = 0.99*0.99*0.995*0.98
-betaw_cruise = 0.99*0.99*0.995*0.98*0.810
-betaw_loiter = 0.99*0.99*0.995*0.98*0.810*0.99
-betaw_descent = 0.99*0.99*0.995*0.98*0.810*0.99*0.99
-betaw_landing = 0.752       # Ratio of actual weight to maximum weight, landing
+betaw_taxi = 0.99
+betaw_takeoff = 0.99*0.99
+betaw_climb = 0.99*0.99*0.995
+betaw_cruise = 0.99*0.99*0.995*0.98
+betaw_loiter = 0.99*0.99*0.995*0.98*0.854
+betaw_descent = 0.99*0.99*0.995*0.98*0.854*0.991
+betaw_landing = 0.99*0.99*0.995*0.98*0.854*0.991*0.99       # Ratio of actual weight to maximum weight, landing
 
 Vmax = Ma*c                 # Max speed requirement, m/s
 V_stall_max = 60            # Maximum stall speed, m/s
