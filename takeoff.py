@@ -37,12 +37,12 @@ def takeoff(aircraft):
     speed_too_low = True
 
     while abs(1-Vair_TO/V2) > 0.001 or Vair_TO <= V2 or h_TO < aircraft.hscreen:
-        if abs(1-Vair_TO/V2) > 0.001:
-            print(f'Current airspeed: {Vair_TO}, V2: {V2}, Pitch angle: {theta_TO*180/np.pi}')
-        elif Vair_TO <= V2:
-            print(f'Current airspeed: {Vair_TO}, V2: {V2}, airspeed too low')
-        elif h_TO < aircraft.hscreen:
-            print(f'Current height: {h_TO}, screen height: {aircraft.hscreen}, height too low')
+        # if abs(1-Vair_TO/V2) > 0.001:
+        #     print(f'Current airspeed: {Vair_TO}, V2: {V2}, Pitch angle: {theta_TO*180/np.pi}')
+        # elif Vair_TO <= V2:
+        #     print(f'Current airspeed: {Vair_TO}, V2: {V2}, airspeed too low')
+        # elif h_TO < aircraft.hscreen:
+        #     print(f'Current height: {h_TO}, screen height: {aircraft.hscreen}, height too low')
         
         h_TO = 0
         iteration_i = 0
@@ -63,21 +63,21 @@ def takeoff(aircraft):
             iteration_i += 1
 
             mdot_TO = aircraft.TSFC_TO*T_TO/1e3 # Fuel flow, g/s
-            aircraft.W -= mdot_TO*dt_TO*g
+            aircraft.W -= mdot_TO*dt_TO/1e3     # Weight change, kg
 
             if iteration_i > 100000:
-                print("The inner function has iterated 100,000 times and hscreen is still not reached. Please check the code.")
-                print(theta_TO*180/np.pi)
+                #print("The inner function has iterated 100,000 times and hscreen is still not reached. Please check the code.")
+                #print(theta_TO*180/np.pi)
                 break
 
             if gamma_TO < -5*np.pi/180:
-                print("The flight path angle has become negative. Please check the code.")
-                print(gamma_TO*180/np.pi)
+                #print("The flight path angle has become negative. Please check the code.")
+                #print(gamma_TO*180/np.pi)
                 raise Exception("Flight path angle negative")
 
         if iteration_o > 100:
-                print("The outer function has iterated 100 times and hscreen is still not reached. Please check the code.")
-                print(theta_TO*180/np.pi)
+                #print("The outer function has iterated 100 times and hscreen is still not reached. Please check the code.")
+                #print(theta_TO*180/np.pi)
                 break
 
         speed_too_low_last = speed_too_low
@@ -97,12 +97,12 @@ def takeoff(aircraft):
 
         iteration_o += 1
 
-    print(f'The function has iterated {iteration_o} times.\n\nThe final height of the airplane is {h_TO} m.\n\n\
-    The final airspeed of takeoff is {Vair_TO} m/s.\n\nThe final air distance is {sair_TO} m.')
-    if Vair_TO < V2:
-        print(f'The final airspeed of takeoff is {Vair_TO} and it\'s less than the safety speed V2={V2}. VLOF={VLOF}.')
-    print(f"The final flight path angle is {gamma_TO*180/np.pi} degrees.")
-    print(f"The final pitch angle is {theta_TO*180/np.pi} degrees.")
-    print(f"The final angle of attack is {AoA_TO*180/np.pi} degrees.")
+    # print(f'The function has iterated {iteration_o} times.\n\nThe final height of the airplane is {h_TO} m.')
+    # print(f'The final airspeed of takeoff is {Vair_TO} m/s.\n\nThe final air distance is {sair_TO} m.')
+    # if Vair_TO < V2:
+    #     print(f'The final airspeed of takeoff is {Vair_TO} and it\'s less than the safety speed V2={V2}. VLOF={VLOF}.')
+    # print(f"The final flight path angle is {gamma_TO*180/np.pi} degrees.")
+    # print(f"The final pitch angle is {theta_TO*180/np.pi} degrees.")
+    # print(f"The final angle of attack is {AoA_TO*180/np.pi} degrees.")
 
     return(sair_TO, gamma_TO*180/np.pi, theta_TO*180/np.pi, AoA_TO*180/np.pi)

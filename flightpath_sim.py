@@ -54,8 +54,8 @@ class aircraft_class:
     a0_cruise = 0.8             # Throttle setting in cruise
     av = -0.3                   # Constant to model decreasing thrust with increasing M
     a = 0.7                     # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
-    TSFC_TO = 10.8e-6           # Takeoff TSFC, g/(kN.s)
-    TSFC_C = 10.8e-6            # Cruise TSFC, g/(kN.s)
+    TSFC_TO = 10.8           # Takeoff TSFC, g/(kN.s)
+    TSFC_C = 10.8            # Cruise TSFC, g/(kN.s)
 
     """
     Aerodynamic Dependent
@@ -105,7 +105,10 @@ sair_TO, gamma_TOd, theta_TOd, AoA_TOd = takeoff(aircraft)
 
 
 ### Cruise
-cruise(aircraft)
+cruiseDist, Wcruises, cruiseLDs, cruiseAlpha = cruise(aircraft)
+plt.plot(cruiseDist/1e3,cruiseAlpha*180/np.pi)
+plt.ticklabel_format(useOffset=False)
+plt.show()
 
 ### Loiter
 
