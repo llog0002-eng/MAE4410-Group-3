@@ -188,7 +188,7 @@ W_C = Wmax*betaw_takeoff
 a0_C = 0.8                                           # Throttle setting in Takeoff
 a0d_C = a0_C * (1 + av * Vmax/c)                 # Airspeed performance correction
 alphae_C = a0d_C * (1)**a                         # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, takeoff
-T_C = Tmax*alphae_C
+T_C = Tmax*alphae_TO
 
 Air_rho = lambda h: rho0*np.exp(-h/8e3)
 
@@ -196,12 +196,13 @@ dt_C = 0.1
 ip = 0
 tol = 0.001
 step = 0.01
-Vair_C = np.arange(50, 300+step, step)
+Vair_C = np.arange(V2, 300+step, step)
 gamma_C_list = []
 theta_C_list = []
 h_C_list = []
 n_list = []
 AoA_list = []
+hdot_list = []
 
 for V in Vair_C:
     error = tol
@@ -225,7 +226,9 @@ for V in Vair_C:
         AoA_p = AoA_C + ip
         theta_C = gamma_C + AoA_C
         hdot = V*np.sin(gamma_C)
-        # h += hdot*dt_C
+        # print(f'gamma = {gamma_C*180/np.pi}')
+        # print(f'AoA = {AoA_p*180/np.pi}')
+        # print(f'theta = {theta_C*180/np.pi}')
 
         n += 1
 
@@ -234,25 +237,33 @@ for V in Vair_C:
     theta_C_list.append(theta_C)
     n_list.append(n)
     AoA_list.append(AoA_p)
+    hdot_list.append(hdot)
     # h_C_list.append(h)
 gamma_C_list = np.array(gamma_C_list)
 theta_C_list = np.array(theta_C_list)
 h_C_list = np.array(h_C_list)
 n_list = np.array(n_list)
 AoA_list = np.array(AoA_list)
+hdot_list = np.array(hdot_list)
 
-max_thetae = np.max(gamma_C_list)
-max_rate_index = np.where(gamma_C_list == max_thetae)
 
+max_thetae = np.max(theta_C_list)
+max_rate_index = np.where(theta_C_list == max_thetae)
+
+max_hdot = np.max(hdot_list)
+max_hdot_index = np.where(hdot_list == max_hdot)
 
 
 
 print(f'\nTme maximum climb rate is {max_thetae} rad = {max_thetae*180/np.pi} degrees\
+\ngamma = {gamma_C_list[max_rate_index]*180/np.pi} degrees, AoA = {AoA_list[max_rate_index]*180/np.pi} degrees\
 \nOccus at Airspeed={Vair_C[max_rate_index]} m/s, V2 = {V2} m/s')
 
 
 
-print(f'')
+print(f'\nThe maximum climb speed is {max_hdot} m/s\
+\ngamma = {gamma_C_list[max_hdot_index]*180/np.pi} degrees, AoA = {AoA_list[max_hdot_index]*180/np.pi} degrees, theta = {theta_C_list[max_hdot_index]*180/np.pi}\
+\nOccus at Airspeed={Vair_C[max_hdot_index]} m/s, V2 = {V2} m/s')
 
 plt.figure('Climb rate')
 plt.plot(Vair_C, gamma_C_list, '.', ms = 2)
@@ -260,11 +271,7 @@ plt.plot(Vair_C[max_rate_index], gamma_C_list[max_rate_index], '*', ms = 3, colo
 plt.xlabel("Air speed [m/s]")
 plt.ylabel("Climb rate gamma [rad]")
 
-plt.figure('Climb angle')
-plt.plot(Vair_C, theta_C_list, '.', ms = 2)
-plt.plot(Vair_C[max_angle_index], theta_C_list[max_angle_index], '*', ms = 3, color = 'red')
-plt.xlabel("Air speed [m/s]")
-plt.ylabel("Climb angle theta [rad]")
+
 
 # plt.figure("Number of ieration")
 # plt.plot(Vair_C, n_list, '.', ms = 2)
