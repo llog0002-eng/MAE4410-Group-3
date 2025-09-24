@@ -1,20 +1,20 @@
 def takeoff(aircraft):
-    # Input aircraft object with all relevant variables
+    # Input: aircraft object with all relevant variables
     # Output: sa (m), flight path angle (deg), pitch angle (deg), angle of attack (deg)
 
     import numpy as np
 
     Vmax = aircraft.Ma*aircraft.c                 # Max speed requirement, m/s
-    g = 9.80665                 # Gravitational acceleration m2/s
+    g = 9.80665                                   # Gravitational acceleration m2/s
 
     Wmax = aircraft.WTO*g
 
-    theta_LOF = 14.5*np.pi/180                            # liftoff pitch angle, rad
+    theta_LOF = 14.5*np.pi/180                           # liftoff pitch angle, rad
 
-    CL_LOF = aircraft.CL0_TO + aircraft.CLalpha_TO * theta_LOF            # Lift coefficient at liftoff
+    CL_LOF = aircraft.CL0_TO + aircraft.CLalpha_TO * theta_LOF   # Lift coefficient at liftoff
     W_TO = Wmax*aircraft.betaw_taxi                              # Weight at takeoff, N
     V_stall_TO = np.sqrt(2 * W_TO/aircraft.S / (aircraft.rho0 * CL_LOF))  # Stall speed at takeoff, m/s
-    VR = 1.05 * V_stall_TO                              # Rotate speed, m/s
+    VR = 1.05 * V_stall_TO                                                # Rotate speed, m/s
     VLOF = 1.1 * V_stall_TO                             # Lift-off speed, m/s
     V2 = 1.13 * V_stall_TO                              # Take-off safety speed, m/s
 
@@ -26,7 +26,6 @@ def takeoff(aircraft):
     theta_TO = theta_LOF                                # Initial takeoff pitch angle, rad
 
     dt_TO = 0.001
-
 
     # Initialise variables
     modifier = 1
@@ -52,7 +51,7 @@ def takeoff(aircraft):
 
         while h_TO < aircraft.hscreen:
             CL = W_TO*np.cos(theta_TO) / (0.5*aircraft.rho0*Vair_TO**2*aircraft.S)
-            CD = aircraft.CD0_TO + aircraft.K*CL**2
+            CD = aircraft.CD0_TO + aircraft.KTO*CL**2
             D = 0.5*aircraft.rho0*Vair_TO**2*aircraft.S*CD
             AoA_TO = (CL - aircraft.CL0_TO) / aircraft.CLalpha_TO  # Angle of attack, rad
 
@@ -63,8 +62,8 @@ def takeoff(aircraft):
             h_TO += hdot_TO*dt_TO
             iteration_i += 1
 
-            mdot_TO = aircraft.TSFC_TO*T_TO
-            W_TO -= mdot_TO*dt_TO*g
+            mdot_TO = aircraft.TSFC_TO*T_TO/1e3 # Fuel flow, g/s
+            aircraft.W -= mdot_TO*dt_TO*g
 
             if iteration_i > 100000:
                 print("The inner function has iterated 100,000 times and hscreen is still not reached. Please check the code.")
@@ -97,8 +96,6 @@ def takeoff(aircraft):
             theta_TO += modifier * 0.1 * np.pi/180
 
         iteration_o += 1
-        
-
 
     print(f'The function has iterated {iteration_o} times.\n\nThe final height of the airplane is {h_TO} m.\n\n\
     The final airspeed of takeoff is {Vair_TO} m/s.\n\nThe final air distance is {sair_TO} m.')

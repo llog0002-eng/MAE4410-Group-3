@@ -68,17 +68,16 @@ CD0_C = 0.00678
 CL_L = 0.5063
 CL0_L = 0.2215
 CD_L = 0.0267
-CD0_L = 0.00639+0.004212
+CD0_L = 0.00639 + 0.004212
 
 
 """
 Engine Dependent
 """
-Tmax = 2 * 264.4e3        # Max thrust for 2x Rolls-Royce RB211-535, N
+Tmax = 2 * 264.4e3      # Max thrust for 2x Rolls-Royce RB211-535, N
 a0 = 1                  # Default throttle setting
 av = -0.3               # Constant to model decreasing thrust with increasing M
 a = 0.7                 # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
-
 
 
 WSact = WTO*g/S # Actual design wing loading
@@ -134,7 +133,7 @@ L = LS * S      # Lift, N
 W = WS * S      # Weight, N
 
 # Air distance requirement
-sa = 271 # Air distance (m)
+sa = 313 # Air distance (m)
 TWTOdistair = 1/sa * ((V2**2 - VLOF**2)/(2*g) + hscreen) + DS * (1/WS)
 
 # Ground distance requirement

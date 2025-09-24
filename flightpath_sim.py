@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import takeoff
+from takeoff import takeoff
+from cruise import cruise
 
 class aircraft_class:
     
@@ -16,19 +17,18 @@ class aircraft_class:
 
     betaw = 1                   # Ratio of actual weight to maximum weight
     betaw_taxi = 0.99
-    betaw_takeoff = 0.99*0.99
-    betaw_climb = 0.99*0.99*0.995
-    betaw_cruise = 0.99*0.99*0.995*0.98
-    betaw_loiter = 0.99*0.99*0.995*0.98*0.854
-    betaw_descent = 0.99*0.99*0.995*0.98*0.854*0.991
-    betaw_landing = 0.99*0.99*0.995*0.98*0.854*0.991*0.99       # Ratio of actual weight to maximum weight, landing
+    betaw_takeoff = betaw_taxi*0.99
+    betaw_climb = betaw_takeoff*0.97
+    betaw_cruise = betaw_climb*0.98
+    betaw_loiter = betaw_cruise*0.820
+    betaw_descent = betaw_loiter*0.989
+    betaw_landing = betaw_descent*0.99       # Ratio of actual weight to maximum weight, landing
 
     Vmax = Ma*c                 # Max speed requirement, m/s
     V_stall_max = 60            # Maximum stall speed, m/s
 
-    WTO = 99.9e3                # Maximum takeoff weight, kg
-    WOE = 43e3
-    Wpay = 26.06e3
+    WTO = 107e3                 # Maximum takeoff weight, kg
+    W = WTO                     # Initial weight, kg
     hscreen = 50 * 0.3048       # Screen height, 50 ft (FAR 25), m
     muwet = 0.05                # Friction coefficient for wet sealed
     mudry = 0.03                # Friction coefficient for dry sealed
@@ -36,6 +36,9 @@ class aircraft_class:
     climbgrad_oei_landgear = 0  # Minimum climb gradient for one engine inoperative (OEI) with landing gear extended, CASA part 121, section 9.05
     climbgrad_oei_clean = 2/100 # Minimum climb gradient for one engine inoperative (OEI) with landing gear retracted, CASA part 121, section 9.05
     hdotceil = 1.27             # Climb rate requirement for ceiling, typical value, m/s
+
+    range = 8000e3              # Range requirement, m
+    loiter_time = 30*60         # Loiter time requirement, s
 
     h = 3                       # Distance of wing above the ground, m
     b = 60.2                    # Wing span, m
@@ -48,6 +51,7 @@ class aircraft_class:
     """
     Tmax = 2 * 189.2e3          # Max thrust for 2x Rolls-Royce RB211-535, N
     a0 = 1                      # Default throttle setting
+    a0_cruise = 0.8             # Throttle setting in cruise
     av = -0.3                   # Constant to model decreasing thrust with increasing M
     a = 0.7                     # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
     TSFC_TO = 10.8e-6           # Takeoff TSFC, g/(kN.s)
@@ -57,39 +61,51 @@ class aircraft_class:
     Aerodynamic Dependent
     """
     KTO = 0.0646                  # Induced drag constant, takeoff
-    KC = 0.646                    # Induced drag constant, cruise
+    KC = 0.0646                    # Induced drag constant, cruise
 
-    ### Take Off (AoA = 10 deg)
-    CL_TO = 0.7821
+    ### Take Off
     CL0_TO = 0.7
-    CD_TO = 0.0517
     CD0_TO = 0.0106 + 0.004212  # Added for landing gear drag
-    CLalpha_TO = 3.22           # Lift curve slope, per rad
+    CLalpha_TO = 2.835           # Lift curve slope, per rad
 
-    ### Cruise (AoA = 0 deg)
-    CL_C = 0.2660
-    CL0_C = 0.02959
-    CD_C = 0.0124
+    ### Climb
+    CL0_CL = 0.7
+    CD0_CL = 0.0106
+    CLalpha_C = 2.835           # Lift curve slope, per rad
+
+    ### Cruise
+    CL0_C = 0.13460
     CD0_C = 0.00678
-    CLalpha_TO = 0              # Lift curve slope, per rad
+    CLalpha_C = 3.515              # Lift curve slope, per rad
 
-    ### Landing (AoA = 5 deg)
-    CL_L = 0.5063
-    CL0_L = 1 # 0.2215
-    CD_L = 0.0267
-    CD0_L = 0.00639 + 0.004212  # Added for landing gear drag
-    CLalpha_TO = 3.22           # Lift curve slope, per rad
+    ### Loiter
+    CL0_LO = 0.02959
+    CD0_LO = 0.00678
+    CLalpha_LO = 3.515              # Lift curve slope, per rad
+
+    ### Descent
+    CL0_DE = 0.7
+    CD0_DE = 0.0106
+    CLalpha_DE = 2.835           # Lift curve slope, per rad
+
+    ### Landing
+    CL0_LA = 1 # 0.2215
+    CD0_LA = 0.00639 + 0.004212  # Added for landing gear drag
+    CLalpha_LA = 2.835           # Lift curve slope, per rad
     
 aircraft = aircraft_class()
 
+### Taxi
+aircraft.W = aircraft.WTO * aircraft.betaw_taxi
+
 ### Take-off
-(sair_TO, gamma_TOd, theta_TOd, AoA_TOd) = takeoff(aircraft)
+sair_TO, gamma_TOd, theta_TOd, AoA_TOd = takeoff(aircraft)
 
 ### Climb
 
 
 ### Cruise
-
+cruise(aircraft)
 
 ### Loiter
 
