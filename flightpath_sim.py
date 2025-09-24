@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import takeoff
 
 class aircraft_class:
     
@@ -49,19 +50,20 @@ class aircraft_class:
     a0 = 1                      # Default throttle setting
     av = -0.3                   # Constant to model decreasing thrust with increasing M
     a = 0.7                     # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
-    TSCF_TO = 10.8e-6           #
-    TSFC_C = 10.8e-6            #
+    TSFC_TO = 10.8e-6           # Takeoff TSFC, g/(kN.s)
+    TSFC_C = 10.8e-6            # Cruise TSFC, g/(kN.s)
 
     """
     Aerodynamic Dependent
     """
-    K = 0.0646                  # Induced drag constant
+    KTO = 0.0646                  # Induced drag constant, takeoff
+    KC = 0.646                    # Induced drag constant, cruise
 
     ### Take Off (AoA = 10 deg)
     CL_TO = 0.7821
     CL0_TO = 0.7
     CD_TO = 0.0517
-    CD0_TO = 0.0106
+    CD0_TO = 0.0106 + 0.004212  # Added for landing gear drag
     CLalpha_TO = 3.22           # Lift curve slope, per rad
 
     ### Cruise (AoA = 0 deg)
@@ -69,13 +71,32 @@ class aircraft_class:
     CL0_C = 0.02959
     CD_C = 0.0124
     CD0_C = 0.00678
+    CLalpha_TO = 0              # Lift curve slope, per rad
 
     ### Landing (AoA = 5 deg)
     CL_L = 0.5063
     CL0_L = 1 # 0.2215
     CD_L = 0.0267
-    CD0_L = 0.00639+0.004212
+    CD0_L = 0.00639 + 0.004212  # Added for landing gear drag
+    CLalpha_TO = 3.22           # Lift curve slope, per rad
     
 aircraft = aircraft_class()
+
+### Take-off
+(sair_TO, gamma_TOd, theta_TOd, AoA_TOd) = takeoff(aircraft)
+
+### Climb
+
+
+### Cruise
+
+
+### Loiter
+
+
+### Descent
+
+
+### Landing
 
 
