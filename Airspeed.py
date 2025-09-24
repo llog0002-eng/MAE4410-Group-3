@@ -22,7 +22,7 @@ betaw_landing = 0.752       # Ratio of actual weight to maximum weight, landing
 Vmax = Ma*c                 # Max speed requirement, m/s
 V_stall_max = 60            # Maximum stall speed, m/s
 
-WTO = 99.9e3               # Maximum takeoff weight, kg
+WTO = 99.9e3                # Maximum takeoff weight, kg
 WOE = 43e3
 Wpay = 26.06e3
 hscreen = 50 * 0.3048       # Screen height, 50 ft (FAR 25), m
@@ -30,13 +30,13 @@ muwet = 0.05                # Friction coefficient for wet sealed
 mudry = 0.03                # Friction coefficient for dry sealed
 
 
-climbgrad_oei_landgear = 0      # Minimum climb gradient for one engine inoperative (OEI) with landing gear extended, CASA part 121, section 9.05
-climbgrad_oei_clean = 2/100     # Minimum climb gradient for one engine inoperative (OEI) with landing gear retracted, CASA part 121, section 9.05
-hdotceil = 1.27                 # Climb rate requirement for ceiling, typical value, m/s
+climbgrad_oei_landgear = 0  # Minimum climb gradient for one engine inoperative (OEI) with landing gear extended, CASA part 121, section 9.05
+climbgrad_oei_clean = 2/100 # Minimum climb gradient for one engine inoperative (OEI) with landing gear retracted, CASA part 121, section 9.05
+hdotceil = 1.27             # Climb rate requirement for ceiling, typical value, m/s
 
 h = 3                       # Distance of wing above the ground, m
-b = 60.2              # Wing span, m
-S = 661.95          # Wing area, m2
+b = 60.2                    # Wing span, m
+S = 661.95                  # Wing area, m2
 g = 9.80665                 # Gravitational acceleration m2/s
 Wmax = WTO*g
 
@@ -52,14 +52,14 @@ a = 0.7                     # Altitude performance index, between 0.7 and 1 depe
 """
 Aerodynamic Dependent
 """
-K = 0.0646              # Induced drag constant
+K = 0.0646                  # Induced drag constant
 
 ### Take Off (AoA = 10 deg)
 CL_TO = 0.7821
-CL0_TO = 0.2201
+CL0_TO = 0.7
 CD_TO = 0.0517
 CD0_TO = 0.0106
-CLalpha_TO = 3.22  # Lift curve slope, per rad
+CLalpha_TO = 3.22           # Lift curve slope, per rad
 
 ### Cruise (AoA = 0 deg)
 CL_C = 0.2660
