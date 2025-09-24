@@ -47,8 +47,8 @@ Tmax = 2 * 189.2e3          # Max thrust for 2x Rolls-Royce RB211-535, N
 a0 = 1                      # Default throttle setting
 av = -0.3                   # Constant to model decreasing thrust with increasing M
 a = 0.7                     # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
-TSCF_TO = 10.8e-6
-TSFC_C = 10.8e-6
+TSCF_TO = 10.8e-6           #
+TSFC_C = 10.8e-6            #
 
 
 """
@@ -71,15 +71,15 @@ CD0_C = 0.00678
 
 ### Landing (AoA = 5 deg)
 CL_L = 0.5063
-CL0_L = 0.2215
+CL0_L = 1 # 0.2215
 CD_L = 0.0267
-CD0_L = 0.00639
+CD0_L = 0.00639+0.004212
 
 """
 Take-Off Airspeed
 """
 
-theta_LOF = 10*np.pi/180                            # liftoff pitch angle, rad
+theta_LOF = 14.5*np.pi/180                            # liftoff pitch angle, rad
 
 CL_LOF = CL0_TO + CLalpha_TO * theta_LOF            # Lift coefficient at liftoff
 W_TO = Wmax*betaw_taxi                              # Weight at takeoff, N
@@ -96,7 +96,7 @@ T_TO = Tmax*alphae_TO
 
 theta_TO = theta_LOF                                # Initial takeoff pitch angle, rad
 
-dt_TO = 0.000001
+dt_TO = 0.001
 
 
 # Initialise variables
@@ -137,20 +137,20 @@ while abs(1-Vair_TO/V2) > 0.001 or Vair_TO <= V2 or h_TO < hscreen:
         mdot_TO = TSCF_TO*T_TO
         W_TO -= mdot_TO*dt_TO*g
 
-        # if iteration_i > 1000000:
-        #     print("The inner function has iterated 100,000 times and hscreen is still not reached. Please check the code.")
-        #     print(theta_TO*180/np.pi)
-        #     break
+        if iteration_i > 100000:
+            print("The inner function has iterated 100,000 times and hscreen is still not reached. Please check the code.")
+            print(theta_TO*180/np.pi)
+            break
 
         if gamma_TO < -5*np.pi/180:
             print("The flight path angle has become negative. Please check the code.")
             print(gamma_TO*180/np.pi)
             raise Exception("Flight path angle negative")
 
-    # if iteration_o > 100:
-    #         print("The outer function has iterated 100 times and hscreen is still not reached. Please check the code.")
-    #         print(theta_TO*180/np.pi)
-    #         break
+    if iteration_o > 100:
+            print("The outer function has iterated 100 times and hscreen is still not reached. Please check the code.")
+            print(theta_TO*180/np.pi)
+            break
 
     speed_too_low_last = speed_too_low
 
@@ -177,6 +177,7 @@ if Vair_TO < V2:
     print(f'The final airspeed of takeoff is {Vair_TO} and it\'s less than the safety speed V2={V2}. VLOF={VLOF}.')
 print(f"The final flight path angle is {gamma_TO*180/np.pi} degrees.")
 print(f"The final pitch angle is {theta_TO*180/np.pi} degrees.")
+print(f"The final angle of attack is {AoA_TO*180/np.pi} degrees.")
 
 
 

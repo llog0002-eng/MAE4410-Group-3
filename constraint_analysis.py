@@ -15,7 +15,7 @@ rhorho0 = 0.2978            # Ratio of air density and sea level air density
 rho = rhorho0 * rho0        # Operating altitude air density, kg/m3
 c0 = 340.3                  # Speed of sound at SSL
 c = 295.2                   # Speed of sound at 11km, m/s
-Ma = 0.85 # Cruise speed, Ma
+Ma = 0.85                   # Cruise speed, Ma
 
 betaw = 1                   # Ratio of actual weight to maximum weight
 betaw_taxi = 0.99
@@ -134,7 +134,7 @@ L = LS * S      # Lift, N
 W = WS * S      # Weight, N
 
 # Air distance requirement
-sa = 400 # Air distance (m)
+sa = 271 # Air distance (m)
 TWTOdistair = 1/sa * ((V2**2 - VLOF**2)/(2*g) + hscreen) + DS * (1/WS)
 
 # Ground distance requirement
