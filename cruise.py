@@ -17,7 +17,8 @@ def cruise(aircraft):
     LDmax = CL_LDmax / (aircraft.CD0_C + aircraft.KC * CL_LDmax**2)
     
     n = 1000 # Number of distance steps in cruise simulation
-    h = 10668  # Initial altitude, m
+    h = 10668  # Initial altitude, m 
+    # !!! -> this should end up being more like 16500 m
 
     cruiseDist = np.linspace(0, aircraft.range, n)  # Cruise distance array, m
     cruiseW = np.zeros(n)                           # Weight array, kg
