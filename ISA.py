@@ -13,6 +13,14 @@ def ISA(hinput):
     rhorho0 = ISA_table["Relative density"].to_numpy()
     c = ISA_table["Speed of sound (m/s)"].to_numpy()
 
+    # Sort by elevation in ascending order
+    sort_idx = np.argsort(h)
+    h = h[sort_idx]
+    T = T[sort_idx]
+    P = P[sort_idx]
+    rhorho0 = rhorho0[sort_idx]
+    c = c[sort_idx]
+
     # Interpolate to find values at input altitude
     T_h = np.interp(hinput, h, T)
     P_h = np.interp(hinput, h, P)

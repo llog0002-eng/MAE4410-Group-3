@@ -13,7 +13,7 @@ class aircraft_class:
     rho = rhorho0 * rho0        # Operating altitude air density, kg/m3
     c0 = 340.3                  # Speed of sound at SSL
     c = 295.2                   # Speed of sound at 11km, m/s
-    Ma = 0.85
+    Ma = 0.85                   # Cruise speed, Ma
 
     betaw = 1                   # Ratio of actual weight to maximum weight
     betaw_taxi = 0.99
@@ -27,7 +27,7 @@ class aircraft_class:
     Vmax = Ma*c                 # Max speed requirement, m/s
     V_stall_max = 60            # Maximum stall speed, m/s
 
-    WTO = 107e3                 # Maximum takeoff weight, kg
+    WTO = 98e3                 # Maximum takeoff weight, kg
     W = WTO                     # Initial weight, kg
     hscreen = 50 * 0.3048       # Screen height, 50 ft (FAR 25), m
     muwet = 0.05                # Friction coefficient for wet sealed
@@ -39,39 +39,43 @@ class aircraft_class:
 
     range = 8000e3              # Range requirement, m
     loiter_time = 30*60         # Loiter time requirement, s
+    cruise_climb_inc = 300     # Altitude increment for cruise climb, m
 
-    h = 3                       # Distance of wing above the ground, m
-    b = 60.2                    # Wing span, m
-    S = 661.95                  # Wing area, m2
     g = 9.80665                 # Gravitational acceleration m2/s
     Wmax = WTO*g
 
     """
     Engine Dependent
     """
-    Tmax = 2 * 189.2e3          # Max thrust for 2x Rolls-Royce RB211-535, N
-    a0 = 1                      # Default throttle setting
-    a0_cruise = 0.8             # Throttle setting in cruise
-    av = -0.3                   # Constant to model decreasing thrust with increasing M
-    a = 0.7                     # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
-    TSFC_TO = 10.8           # Takeoff TSFC, g/(kN.s)
-    TSFC_C = 10.8            # Cruise TSFC, g/(kN.s)
+    Tmax = 2 * 189.2e3              # Max thrust for 2x Rolls-Royce RB211-535, N
+    Tmax_continuous = 2 * 156.6e3   # Max continuous thrust for 2x Rolls-Royce RB211-535, N
+    a0 = 1                          # Default throttle setting
+    a0_cruise = 0.8                 # Throttle setting in cruise
+    av = -0.3                       # Constant to model decreasing thrust with increasing M
+    a = 0.7                         # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
+    TSFC_C = 10.8                   # Cruise TSFC, g/(kN.s)
+    TSFC_TO = TSFC_C * 1.2          # Takeoff TSFC, g/(kN.s)
 
     """
     Aerodynamic Dependent
     """
+
+    h = 3                       # Distance of wing above the ground, m
+    b = 60.2                    # Wing span, m
+    S = 661.95                  # Wing area, m2
+
     KTO = 0.0646                  # Induced drag constant, takeoff
-    KC = 0.0646                    # Induced drag constant, cruise
+    KC = 0.0646                   # Induced drag constant, cruise
 
     ### Take Off
-    CL0_TO = 0.7
+    CL0_TO = 1.5
     CD0_TO = 0.0106 + 0.004212  # Added for landing gear drag
-    CLalpha_TO = 2.835           # Lift curve slope, per rad
+    CLalpha_TO = 2.835          # Lift curve slope, per rad
 
     ### Climb
-    CL0_CL = 0.7
+    CL0_CL = 0.13460
     CD0_CL = 0.0106
-    CLalpha_C = 2.835           # Lift curve slope, per rad
+    CLalpha_C = 3.515           # Lift curve slope, per rad
 
     ### Cruise
     CL0_C = 0.13460
@@ -105,9 +109,31 @@ sair_TO, gamma_TOd, theta_TOd, AoA_TOd = takeoff(aircraft)
 
 
 ### Cruise
-cruiseDist, Wcruises, cruiseLDs, cruiseAlpha = cruise(aircraft)
-plt.plot(cruiseDist/1e3,cruiseAlpha*180/np.pi)
-plt.ticklabel_format(useOffset=False)
+cruiseDist, Wcruises, cruiseLDs, cruiseAlpha, cruisets, cruiseh, cruiseV, cruiseopth, cruiseThrottle = cruise(aircraft)
+
+print(f"Cruise weight ratio: {Wcruises[-1]/Wcruises[0]:.2f}")
+print(f"Cruise time: {cruisets[-1]/3600} hours")
+
+fig,axs = plt.subplots(2,2)
+
+axs[0,0].plot(cruiseDist/1e3,cruiseh/1e3,label = "Altitude [km]",color='blue')
+axs[0,0].plot(cruiseDist/1e3,cruiseopth/1e3,label = "Optimal altitude [km]",color='cyan')
+axs[0,1].plot(cruiseDist/1e3,cruiseAlpha*180/np.pi,label = "Angle of attack [deg]",color='red')
+axs[1,0].plot(cruiseDist/1e3,cruiseLDs,label = "L/D ratio",color='green')
+axs[1,1].plot(cruiseDist/1e3,Wcruises,label = "Weight [kg]",color='orange')
+
+axs[0,0].set_ylabel("Altitude [km]")
+axs[0,1].set_ylabel("Angle of attack [deg]")
+axs[1,0].set_ylabel("L/D ratio")
+axs[1,1].set_ylabel("Weight [kg]")
+
+axs[1,0].set_xlabel("Cruise distance [km]")
+axs[0,1].set_xlabel("Cruise distance [km]")
+axs[0,0].set_xlabel("Cruise distance [km]")
+axs[1,1].set_xlabel("Cruise distance [km]")
+
+axs[0,0].legend()
+
 plt.show()
 
 ### Loiter
