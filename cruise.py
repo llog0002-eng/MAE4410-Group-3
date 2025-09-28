@@ -64,6 +64,7 @@ def cruise(aircraft):
         h_targ_opt = ISA_rho(rho_targ)   
         cruiseopth[i] = h_targ_opt
 
+        # If not climbing, update altitude target
         if climbing == False:
             h_targ = h_targ_opt
 

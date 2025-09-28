@@ -70,12 +70,12 @@ class aircraft_class:
 
     ### Take Off
     CL0_TO = 1.5
-    CD0_TO = 0.0087 + 0.004212  # Added for landing gear drag
-    CLalpha_TO = 2.835          # Lift curve slope, per rad
+    CD0_TO = 0.0065 + 0.004212  # Added for landing gear drag
+    CLalpha_TO = 2.64          # Lift curve slope, per rad
 
     ### Climb
-    CL0_CL = 0.1219
-    CD0_CL = 0.0049
+    CL0_CL = 0.1224
+    CD0_CL = 0.0048
     CLalpha_CL = 3.323           # Lift curve slope, per rad
 
     ### Cruise
@@ -94,9 +94,9 @@ class aircraft_class:
     CLalpha_DE = CLalpha_C           # Lift curve slope, per rad
 
     ### Landing
-    CL0_LA = 1.5
-    CD0_LA = 0.0087 + 0.004212  # Added for landing gear drag
-    CLalpha_LA = 2.835           # Lift curve slope, per rad
+    CL0_LA = CL0_TO
+    CD0_LA = CD0_TO  # Added for landing gear drag
+    CLalpha_LA = CLalpha_TO           # Lift curve slope, per rad
     
 aircraft = aircraft_class()
 
