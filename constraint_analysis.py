@@ -220,7 +220,6 @@ TWClimbceil = 0.5*rho*Vmax**2*CD0_C/alphae_ceil/WS + 2*KC*betaw_climb**2*WS/(alp
 # plt.plot(WS,TWClimbSSL,label="Climb (sea level)")
 plt.plot(WS,TWClimbceil,label="Service ceiling climb rate")
 
-
 """"
 Stall speed requirement
 """
@@ -230,12 +229,9 @@ WS_stall_speed = 1/2 * rho0 * V_stall_max ** 2 * CL_L / betaw_descent # Wing loa
 print(WS_stall_speed)
 plt.axvline(WS_stall_speed, label = "Stall speed", color = "pink")
 
-
 """
 Plotting
 """
-
-mpl.rc("savefig", dpi=300)
 
 plt.title("Constraint Analysis")
 plt.xlabel("Wing loading (N/m2)")
@@ -255,5 +251,9 @@ plt.xlabel("Wing loading (N/m2)")
 plt.ylabel("Thrust to weight ratio (TWR)")
 plt.legend(loc = "upper right")
 plt.ylim((0,1))
+
+mpl.rc("savefig", dpi=300)
+plt.savefig("../../Constraint Analysis.png", bbox_inches='tight')
+
 plt.show()
 

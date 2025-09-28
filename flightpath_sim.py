@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
 from takeoff import takeoff
 from cruise import cruise
@@ -27,7 +28,7 @@ class aircraft_class:
     Vmax = Ma*c                 # Max speed requirement, m/s
     V_stall_max = 60            # Maximum stall speed, m/s
 
-    WTO = 98e3                 # Maximum takeoff weight, kg
+    WTO = 98e3                  # Maximum takeoff weight, kg
     W = WTO                     # Initial weight, kg
     hscreen = 50 * 0.3048       # Screen height, 50 ft (FAR 25), m
     muwet = 0.05                # Friction coefficient for wet sealed
@@ -99,33 +100,35 @@ class aircraft_class:
     
 aircraft = aircraft_class()
 
-### Taxi
+#region // Taxi
 aircraft.W = aircraft.WTO * aircraft.betaw_taxi
+#endregion
 
-### Take-off
+#region // Take-off
 sair_TO, gamma_TOd, theta_TOd, AoA_TOd = takeoff(aircraft)
+#endregion
 
-### Climb
+#region // Climb
+#endregion
 
-
-### Cruise
+#region // Cruise
 cruiseDist, Wcruises, cruiseLDs, cruiseAlpha, cruisets, cruiseh, cruiseV, cruiseopth, cruiseThrottle = cruise(aircraft)
 
 print(f"Cruise weight ratio: {Wcruises[-1]/Wcruises[0]:.2f}")
 print(f"Cruise time: {cruisets[-1]/3600} hours")
 
-fig,axs = plt.subplots(2,2)
+fig,axs = plt.subplots(2,2, sharex=True, figsize=(10,6))
 
 axs[0,0].plot(cruiseDist/1e3,cruiseh/1e3,label = "Altitude [km]",color='blue')
 axs[0,0].plot(cruiseDist/1e3,cruiseopth/1e3,label = "Optimal altitude [km]",color='cyan')
 axs[0,1].plot(cruiseDist/1e3,cruiseAlpha*180/np.pi,label = "Angle of attack [deg]",color='red')
 axs[1,0].plot(cruiseDist/1e3,cruiseLDs,label = "L/D ratio",color='green')
-axs[1,1].plot(cruiseDist/1e3,Wcruises,label = "Weight [kg]",color='orange')
+axs[1,1].plot(cruiseDist/1e3,Wcruises/1e3,label = "Weight [t]",color='orange')
 
 axs[0,0].set_ylabel("Altitude [km]")
 axs[0,1].set_ylabel("Angle of attack [deg]")
 axs[1,0].set_ylabel("L/D ratio")
-axs[1,1].set_ylabel("Weight [kg]")
+axs[1,1].set_ylabel("Weight [t]")
 
 axs[1,0].set_xlabel("Cruise distance [km]")
 axs[0,1].set_xlabel("Cruise distance [km]")
@@ -134,14 +137,18 @@ axs[1,1].set_xlabel("Cruise distance [km]")
 
 axs[0,0].legend()
 
+mpl.rc("savefig", dpi=300)
+plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
+
 plt.show()
+#endregion
 
-### Loiter
+#region // Loiter
+#endregion
 
+#region // Descent
+#endregion
 
-### Descent
-
-
-### Landing
-
+#region // Landing
+#endregion
 
