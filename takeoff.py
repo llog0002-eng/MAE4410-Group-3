@@ -10,7 +10,7 @@ def takeoff(aircraft):
     Wmax = aircraft.WTO*g
 
 
-    theta_stall = 12 * np.pi/180                                            # Stall angle, rad
+    theta_stall = 10 * np.pi/180                                            # Stall angle, rad
     CL_stall = aircraft.CL0_TO + aircraft.CLalpha_TO * theta_stall          # Lift coefficient at stall, takeoff
     W_TO = Wmax*aircraft.betaw_taxi                                         # Weight at takeoff, N
     V_stall_TO = np.sqrt(2 * W_TO/aircraft.S / (aircraft.rho0 * CL_stall))  # Stall speed at takeoff, m/s
@@ -98,7 +98,7 @@ def takeoff(aircraft):
         iteration_o += 1
 
     # print(f'The function has iterated {iteration_o:.2f} times.\n\nThe final height of the airplane is {h_TO:.2f} m.')
-    # print(f'The final airspeed of takeoff is {Vair_TO:.2f} m/s.\n\nThe final air distance is {sair_TO:.2f} m.')
+    print(f'The final airspeed of takeoff is {Vair_TO:.2f} m/s.\n\nThe final air distance is {sair_TO:.2f} m.')
     # if Vair_TO < V2:
     #     print(f'The final airspeed of takeoff is {Vair_TO:.2f} and it\'s less than the safety speed V2={V2:.2f}. VLOF={VLOF:.2f}.')
     # print(f"The final flight path angle is {gamma_TO*180/np.pi:.2f} degrees.")

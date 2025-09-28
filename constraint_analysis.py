@@ -30,7 +30,7 @@ Vmax = Ma*c # Max speed requirement, m/s
 V_stall_max = 74.5 # Maximum stall speed, m/s
 sTO = 2200 # Maximum overall takeoff distance, m
 
-WTO = 98e3 # Maximum takeoff weight, kg
+WTO = 105.7e3 # Maximum takeoff weight, kg
 hscreen = 50 * 0.3048 # Screen height, 50 ft (FAR 25), m
 muwet = 0.05 # Friction coefficient for wet sealed
 mudry = 0.03 # Friction coefficient for dry sealed
@@ -43,7 +43,6 @@ hdotceil = 1.27 # Climb rate requirement for ceiling, typical value, m/s
 
 h = 3               # Distance of wing above the ground, m
 b = 60.2            # Wing span, m
-S = 661.95          # Wing area, m2
 g = 9.80665         # Gravitational acceleration m2/s
 
 
@@ -53,48 +52,47 @@ Aerodynamic Dependent
 
 h = 3                       # Distance of wing above the ground, m
 b = 60.2                    # Wing span, m
-S = 661.95                  # Wing area, m2
+S = 386                  # Wing area, m2
 
-KTO = 0.0646                  # Induced drag constant, takeoff
-KC = 0.0646                   # Induced drag constant, cruise
+KTO = 0.0868                  # Induced drag constant, takeoff
+KC = 0.0868                   # Induced drag constant, cruise
 
 ### Take Off
 CL0_TO = 1.5
-CD0_TO = 0.0106 + 0.004212  # Added for landing gear drag
+CD0_TO = 0.0087 + 0.004212  # Added for landing gear drag
 CLalpha_TO = 2.835          # Lift curve slope, per rad
 
 ### Climb
-CL0_CL = 0.13460
-CD0_CL = 0.0106
-CLalpha_C = 3.515           # Lift curve slope, per rad
+CL0_CL = 0.1219
+CD0_CL = 0.0049
+CLalpha_CL = 3.323           # Lift curve slope, per rad
 
 ### Cruise
-CL0_C = 0.13460
-CD0_C = 0.00678
-CLalpha_C = 3.515              # Lift curve slope, per rad
-LD_C = 17                    # Target to drag ratio in cruise
+CL0_C = CL0_CL
+CD0_C = CD0_CL
+CLalpha_C = CLalpha_CL              # Lift curve slope, per rad
 
 ### Loiter
-CL0_LO = 0.02959
-CD0_LO = 0.00678
-CLalpha_LO = 3.515              # Lift curve slope, per rad
+CL0_LO = CL0_C
+CD0_LO = CD0_C
+CLalpha_LO = CLalpha_C              # Lift curve slope, per rad
 
 ### Descent
-CL0_DE = 0.7
-CD0_DE = 0.0106
-CLalpha_DE = 2.835           # Lift curve slope, per rad
+CL0_DE = CL0_C
+CD0_DE = CD0_C
+CLalpha_DE = CLalpha_C           # Lift curve slope, per rad
 
 ### Landing
-CL0_LA = 1 # 0.2215
-CD0_LA = 0.00639 + 0.004212  # Added for landing gear drag
+CL0_LA = 1.5
+CD0_LA = 0.0087 + 0.004212  # Added for landing gear drag
 CLalpha_LA = 2.835           # Lift curve slope, per rad
 
 
 """
 Engine Dependent
 """
-Tmax = 2 * 189.2e3          # Max thrust for 2x Rolls-Royce RB211-535, N
-Tmax_continuous = 2 * 156.6e3   # Max continuous thrust for 2x Rolls-Royce RB211-535, N
+Tmax = 2*143.05e3           # Max thrust for 2x CFM LEAP-1A, N
+Tmax_continuous = 2*140.96e3 # Max continuous thrust for 2x CFM LEAP-1A, N
 a0 = 1                      # Default throttle setting
 av = -0.3                   # Constant to model decreasing thrust with increasing M
 a = 0.7                     # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
@@ -118,7 +116,7 @@ index = np.where(np.abs(WS-WSact) == closest)
 """
 Maximum speed requirement
 """
-a0_cruise = 0.8 # Throttle setting in cruise
+a0_cruise = 0.85 # Throttle setting in cruise
 a0d_cruise = a0_cruise * (1 + av * Vmax/c) # Airspeed performance correction
 alphae_cruise = a0d_cruise * (rhorho0)**a # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, cruise
 CL_C = (2 * WS * betaw_cruise) / (rho * Vmax**2) # Lift coefficient, assuming level flight
@@ -157,7 +155,7 @@ L = LS * S      # Lift, N
 W = WS * S      # Weight, N
 
 # Air distance requirement
-sa = 237 # Air distance (m)
+sa = 368.7 # Air distance (m)
 TWTOdistair = 1/sa * ((V2**2 - VLOF**2)/(2*g) + hscreen) + DS * (1/WS)
 
 # Ground distance requirement

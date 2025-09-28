@@ -21,10 +21,11 @@ def cruise(aircraft):
 
     # Cruise angle of attack, max L/D, rad
     alpha_LDmax = (CL_LDmax - CL0) / (CLalpha)
+    print('Cruise AoA (deg): ', round(alpha_LDmax*180/np.pi,2))
 
     # Max L/D
     LD = 1/2*np.sqrt(1/(K*CD0))
-    print('Max L/D: ', LD)
+    print('Max L/D: ', round(LD,2))
     
     n = 5000 # Number of distance steps in cruise simulation
 
