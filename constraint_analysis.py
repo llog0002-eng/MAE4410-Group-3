@@ -162,17 +162,6 @@ TWTOdistair = 1/sa * ((V2**2 - VLOF**2)/(2*g) + hscreen) + DS * (1/WS)
 sg = sTO_max - sa
 TWTOdistgnd = VLOF**2 / (2 * g * sg) + mudry + (DS - mudry * LS) * (1/WS)
 
-<<<<<<< HEAD
-# Calculate distances for design point
-sg_act = 0.5 * WTO * VLOF[index]**2 / (Tmax - D[index] - mudry * (WTO * g - L[index]))
-sa_act = WSact * S / (Tmax - D[index]) * ((V2[index]**2 - VLOF[index]**2)/(2*g) + hscreen)
-
-print(f"Takeoff ground distance at design point: {sg_act[0]} m")
-print(f"Takeoff air distance at design point: {sa_act[0]} m")
-print(f'Total takeoff distance at design point: {sg_act[0]+sa_act[0]}')
-
-=======
->>>>>>> fe8a2fb5535b05814a8d160df82f1b03a739d7fd
 plt.plot(WS,TWTOdistgnd,label="T/O ground distance")
 plt.plot(WS,TWTOdistair,label="T/O air distance")
 
