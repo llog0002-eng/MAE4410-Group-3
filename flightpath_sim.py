@@ -1,8 +1,11 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
+from tabulate import tabulate
 from takeoff import takeoff
 from cruise import cruise
+from climb import Climb
+from range import Range
 
 class aircraft_class:
     
@@ -28,7 +31,8 @@ class aircraft_class:
     Vmax = Ma*c                 # Max speed requirement, m/s
     V_stall_max = 60            # Maximum stall speed, m/s
 
-    WTO = 105.7e3                  # Maximum takeoff weight, kg
+    WTO = 106.7e3               # Maximum takeoff weight, kg
+    m_fuel = 26.2e3             # Maximum mass of fuel, kg
     W = WTO                     # Initial weight, kg
     hscreen = 50 * 0.3048       # Screen height, 50 ft (FAR 25), m
     muwet = 0.05                # Friction coefficient for wet sealed
@@ -44,23 +48,26 @@ class aircraft_class:
 
     g = 9.80665                 # Gravitational acceleration m2/s
     Wmax = WTO*g
+    W_fuel = m_fuel*g
 
     """
     Engine Dependent
     """
-    Tmax = 2*143.05e3           # Max thrust for 2x CFM LEAP-1A, N
-    Tmax_continuous = 2*140.96e3 # Max continuous thrust for 2x CFM LEAP-1A, N
+    Tmax = 2*143.05e3               # Max thrust for 2x CFM LEAP-1A, N
+    Tmax_continuous = 2*140.96e3    # Max continuous thrust for 2x CFM LEAP-1A, N
     a0 = 1                          # Default throttle setting
+    a0_climb = 0.9                  # Throttle setting in climb, 0.9-0.95 (Wk5 lecture note page 26)
     a0_cruise = 0.8                 # Throttle setting in cruise
     av = -0.3                       # Constant to model decreasing thrust with increasing M
     a = 0.7                         # Altitude performance index, between 0.7 and 1 depending on engine altitude optimisation
     TSFC_C = 14.4                   # Cruise TSFC, g/(kN.s)
     TSFC_TO = TSFC_C * 1.2          # Takeoff TSFC, g/(kN.s)
+    ip = 0                          # Constant angle of incidence of propulsion system. Zero if engines are parallel to the ground
+
 
     """
     Aerodynamic Dependent
     """
-
     h = 3                        # Distance of wing above the ground, m
     b = 60.2                     # Wing span, m
     S = 386                      # Wing area, m2
@@ -70,12 +77,12 @@ class aircraft_class:
 
     ### Take Off
     CL0_TO = 1.5
-    CD0_TO = 0.0065 + 0.004212  # Added for landing gear drag
-    CLalpha_TO = 2.64          # Lift curve slope, per rad
+    CD0_TO = 0.0087 + 0.004212  # Added for landing gear drag
+    CLalpha_TO = 2.835          # Lift curve slope, per rad
 
     ### Climb
-    CL0_CL = 0.1224
-    CD0_CL = 0.0048
+    CL0_CL = 0.1219
+    CD0_CL = 0.0049
     CLalpha_CL = 3.323           # Lift curve slope, per rad
 
     ### Cruise
@@ -94,11 +101,43 @@ class aircraft_class:
     CLalpha_DE = CLalpha_C           # Lift curve slope, per rad
 
     ### Landing
-    CL0_LA = CL0_TO
-    CD0_LA = CD0_TO  # Added for landing gear drag
-    CLalpha_LA = CLalpha_TO           # Lift curve slope, per rad
+    CL0_LA = 1.5
+    CD0_LA = 0.0087 + 0.004212  # Added for landing gear drag
+    CLalpha_LA = 2.835           # Lift curve slope, per rad
+
+    """
+    Takeoff Data
+    """
+    theta_stall = 10 * np.pi/180                                # Stall angle, rad
+    CL_stall = CL0_TO + CLalpha_TO * theta_stall                # Lift coefficient at stall, takeoff
+    W_TO = Wmax*betaw_taxi                                      # Weight at takeoff, N
+    V_stall_TO = np.sqrt(2 * W_TO/S / (rho0 * CL_stall))        # Stall speed at takeoff, m/s
+    VR = 1.05 * V_stall_TO                                      # Rotate speed, m/s
+    VLOF = 1.1 * V_stall_TO                                     # Lift-off speed, m/s
+    V2 = 1.13 * V_stall_TO                                      # Take-off safety speed, m/s
+
+
+    """
+    Climb Date
+    """
+    W_CL = Wmax*betaw_takeoff
+
+
+    """
+    V-n Diagram Data
+    """
+    # Both n from course note 13 page 23
+    n_pos_limit = 3.5
+    n_neg_limit = -1.5
+
+    
     
 aircraft = aircraft_class()
+
+
+
+
+
 
 #region // Taxi
 aircraft.W = aircraft.WTO * aircraft.betaw_taxi
@@ -109,6 +148,19 @@ sair_TO, gamma_TOd, theta_TOd, AoA_TOd = takeoff(aircraft)
 #endregion
 
 #region // Climb
+climb = Climb(aircraft, 0, 12000, 500, 0.0001, 1)
+climb.best_RC_data()
+climb.best_AC_data()
+climb.get_plot(climb.hdot_list)
+climb.get_Service_Ceiling()
+climb.get_all_plot()
+
+#endregion
+
+#region // Range
+    # used to calculated MAX Range it can raeach, ignoring loiter, descent and landing. It's the max distance after climb
+range = Range(aircraft, aircraft.Vmax, 11000, 0.001, 6)
+range.get_data()
 #endregion
 
 #region // Cruise
@@ -117,7 +169,7 @@ cruiseDist, Wcruises, cruiseLDs, cruiseAlpha, cruisets, cruiseh, cruiseV, cruise
 print(f"Cruise weight ratio: {Wcruises[-1]/Wcruises[0]:.3f}")
 print(f"Cruise time: {cruisets[-1]/3600:.1f} hours")
 
-fig,axs = plt.subplots(3,2, sharex=True, figsize=(12,6))
+fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
 
 axs[0,0].plot(cruiseDist/1e3,cruiseh/1e3,label = "Altitude [km]",color='blue')
 axs[0,0].plot(cruiseDist/1e3,cruiseopth/1e3,label = "Optimal altitude [km]",color='cyan')
