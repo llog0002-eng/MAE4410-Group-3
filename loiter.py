@@ -1,4 +1,7 @@
 def loiter(aircraft):
+    # Input: aircraft object with all relevant variables
+    # Output: property dataframe
+
     import numpy as np
     import pandas as pd
     from ISA import ISA
@@ -8,7 +11,7 @@ def loiter(aircraft):
     rho0 = 1.225                                  # Sea level air density, kg/m3
     
     S = aircraft.S                                  # Wing area, m2
-    Tmax = aircraft.Tmax_continuous                 # Max continuous thrust, N
+    Tmax = aircraft.Tmax                            # Max continuous thrust, N
     V = aircraft.Vmax                               # Cruise speed requirement, m/s
     K = aircraft.KC                                 # Induced drag constant
     CD0 = aircraft.CD0_C                            # Zero lift drag coefficient
@@ -19,16 +22,16 @@ def loiter(aircraft):
     T, P, rhorho0, c = ISA(loiterh)
     rho = rho0*rhorho0
 
-    n = 1000 # Number of time steps in loiter simulation
+    n = 100 # Number of time steps in loiter simulation
     dt = aircraft.loiter_time/(n-1)
 
-    loiterThrottle = np.zeros(n)
-    loiterAlpha = np.zeros(n)
-    loiterW=np.zeros(n)
-    loiterV=np.zeros(n)
-    loiterLDs=np.zeros(n)
-    loiterts = np.linspace(0,aircraft.loiter_time,n)
-    loiterDist = np.zeros(n)
+    throttles = np.zeros(n)
+    alpha = np.zeros(n)
+    m=np.zeros(n)
+    Vs=np.zeros(n)
+    LDs=np.zeros(n)
+    ts = np.linspace(0,aircraft.loiter_time,n)
+    dist = np.zeros(n)
 
     for i in range(n):
         # Minimum drag velocity
@@ -36,7 +39,7 @@ def loiter(aircraft):
         L = aircraft.W
         CL = 2*L/(rho*V**2*S)
 
-        loiterAlpha[i]=(CL-CL0)/CLalpha
+        alpha[i]=(CL-CL0)/CLalpha
 
         CD = CD0 + K * CL ** 2
         T = 0.5 * rho * V ** 2 * CD * S
@@ -47,18 +50,33 @@ def loiter(aircraft):
         alphae_cruise = a0d_cruise * (rhorho0)**aircraft.a
 
         # Solve for required throttle setting
-        loiterThrottle[i] = T / (alphae_cruise * Tmax)
+        throttles[i] = T / (alphae_cruise * Tmax)
 
         # Update weight
         dm = aircraft.TSFC_C * T / 1e6 * dt  # Fuel flow, kg
         aircraft.W -= dm
-        loiterW[i] = aircraft.W
+        m[i] = aircraft.W
 
-        loiterV[i] = V
-        loiterLDs[i] = CL/CD
+        Vs[i] = V
+        LDs[i] = CL/CD
         if i != 0:
-            loiterDist[i] = loiterDist[i-1] + dt * V
+            dist[i] = dist[i-1] + dt * V
 
-    loiterTheta = loiterAlpha
+    loiterTheta = alpha
 
-    return loiterAlpha, loiterThrottle, loiterW, loiterts, loiterV, loiterLDs, loiterTheta, loiterDist
+    df = pd.DataFrame(
+        {
+            "distance": dist,
+            "mass": m,
+            "L/D": LDs,
+            "AoA": alpha,
+            "time": ts,
+            "altitude": np.ones(n)*loiterh,
+            "speed": Vs,
+            "optimal altitude": np.zeros(n),
+            "throttle": throttles,
+            "theta": alpha,
+        }
+    )
+
+    return df
