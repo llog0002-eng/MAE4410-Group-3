@@ -4,10 +4,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tabulate import tabulate
 
-
-class climb:
+### Bit explanation about class
+# Class takes inputs, e.g. start, end, increment... below. But "self" is not an input.
+class Climb:
     def __init__(self, aircraft, start, end, increment, tolerence, step):
         
+        # U might notice that most of the code are under this def __init__ function, can just treat it as a normal function
+        # when u see self.XX means this variable will be stored inside the class, u can access them at any time
+        # For any other variables that don't have self. ahead, they will be deleted AFTER the class is executed and u can access them anymore
+        # Not only outside of the class, u can't even access them as long as outside of this def __init__ function
         self.start = start
         self.end = end
         self.increment = increment
@@ -44,7 +49,9 @@ class climb:
         hdot_list = []
         Thrust_list = []
         Drag_list = []
-
+        
+        # This big for loop is to calculate theta, AoA, gamma...
+        # Follow the algorithm from wk6 workshop slide page 10
         for i in range(len(c_list)):
             c = c_list[i]
 
@@ -104,6 +111,7 @@ class climb:
         self.Drag_list = ["Drag at Diff Altitude", "Air Speed [m/s]", "D [N]", np.array(Drag_list)]
 
 
+        # Following codes are just finding max climb rate and gradient at every altitude
         self.max_hdot_list = []
         self.max_theta_list = []
         for i in range(len(c_list)):
@@ -168,7 +176,18 @@ class climb:
         \nThe final weight is {self.W_CL[0]/aircraft.g} kg\
         \nTotal time is {(np.sum(self.Time_CL) + np.sum(self.Time_accel))/60} mins')
 
+
+    
     def get_plot(self, data_list):
+        # Now this get_plot function is the function other than def __init__. 
+        # Treat it as a normal function. 
+        # Input of this function is data_list, which is the list u wanna plot
+
+        # U can call this function outside of the class
+        # E.g. outside of the class:
+        # define range_data = Range(X, X, X, X...)
+        # define RC_data = range_data.hdot_list     (since hdot_list is stored inside the class, we can access it anytime)
+        # range_data.get_plot(RC_data) will plot air speed vs. R/C
         title = data_list[0]
         title_xaxis = data_list[1]
         title_yaxis = data_list[2]
@@ -182,6 +201,9 @@ class climb:
         plt.legend(title = "Altitude")
         # plt.show()
     
+
+    # Same rule applies to all functions below. 
+    # The use of the function can be told by function name
     def get_Service_Ceiling(self):
         plt.figure("Service Ceiling")
         for i in range(len(self.max_hdot_list)):
