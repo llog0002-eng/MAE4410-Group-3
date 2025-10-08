@@ -15,8 +15,7 @@ def takeoff(aircraft):
     V_stall_TO = np.sqrt(2 * W_TO/aircraft.S / (aircraft.rho0 * CL_stall))  # Stall speed at takeoff, m/s
     VR = 1.05 * V_stall_TO                                                  # Rotate speed, m/s
     VLOF = 1.1 * V_stall_TO                                                 # Lift-off speed, m/s
-    V2 = 1.13 * V_stall_TO                                                  # Take-off safety speed, m/s
-    print(V2)
+    V2 = 1.13 * V_stall_TO
     
     # Angle required to lift off                                            # liftoff pitch angle, rad
     a0_TO = 1                                                               # Throttle setting in Takeoff
@@ -51,7 +50,6 @@ def takeoff(aircraft):
         Vs[0] = VLOF
         dist[0] = 3*VLOF
         m[0] = aircraft.W
-        print(aircraft.W/1e3)
 
         while altitude[i] < aircraft.hscreen:
 
@@ -60,7 +58,7 @@ def takeoff(aircraft):
             
             CL = W_TO/np.cos(theta_TO) / (0.5*aircraft.rho0*Vs[i]**2*aircraft.S)
             CD = aircraft.CD0_TO + aircraft.KTO*CL**2
-            LDs[i+1] = CL/CD
+            LDs[i] = CL/CD
             D = 0.5*aircraft.rho0*Vs[i]**2*aircraft.S*CD
 
             alpha[i] = (CL - aircraft.CL0_TO) / aircraft.CLalpha_TO  # Angle of attack, rad

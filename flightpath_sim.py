@@ -202,7 +202,7 @@ print(f"Loiter time: {loitertime:.1f} hours")
 
 #region // Plotting
 
-plotdf = takeoffdf
+plotdf = loiterdf
 
 fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
 
@@ -233,6 +233,7 @@ axs[0,1].legend()
 mpl.rc("savefig", dpi=300)
 plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
 
+fig.suptitle("Loiter")
 plt.show()
 
 #endregion
