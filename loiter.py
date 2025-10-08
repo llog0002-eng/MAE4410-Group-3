@@ -35,8 +35,8 @@ def loiter(aircraft):
 
     for i in range(n):
         # Minimum drag velocity
-        V = np.sqrt(2*aircraft.W/(rho*S) * np.sqrt(K/CD0))
-        L = aircraft.W
+        V = np.sqrt(2*aircraft.W * g/(rho*S) * np.sqrt(K/CD0))
+        L = aircraft.W * g
         CL = 2*L/(rho*V**2*S)
 
         alpha[i]=(CL-CL0)/CLalpha

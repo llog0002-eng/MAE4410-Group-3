@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from tabulate import tabulate
 from takeoff import takeoff
-from climb import climb
+from climb import Climb
 from cruise import cruise
 from loiter import loiter
 from range import Range
