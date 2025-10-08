@@ -3,6 +3,7 @@ def takeoff(aircraft):
     # Output: sa (m), flight path angle (deg), pitch angle (deg), angle of attack (deg)
 
     import numpy as np
+    import pandas as pd
 
     Vmax = aircraft.Ma*aircraft.c                 # Max speed requirement, m/s
     g = 9.80665                                   # Gravitational acceleration m2/s

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate
 
 
-class Climb:
+class climb:
     def __init__(self, aircraft, start, end, increment, tolerence, step):
         
         self.start = start

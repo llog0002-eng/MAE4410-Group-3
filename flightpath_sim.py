@@ -3,8 +3,9 @@ import matplotlib as mpl
 import numpy as np
 from tabulate import tabulate
 from takeoff import takeoff
+from climb import climb
 from cruise import cruise
-from climb import Climb
+from loiter import loiter
 from range import Range
 
 class aircraft_class:
@@ -148,7 +149,7 @@ sair_TO, gamma_TOd, theta_TOd, AoA_TOd = takeoff(aircraft)
 #endregion
 
 #region // Climb
-climb = Climb(aircraft, 0, 12000, 500, 0.0001, 1)
+climb = climb(aircraft, 0, 12000, 500, 0.0001, 1)
 climb.best_RC_data()
 climb.best_AC_data()
 climb.get_plot(climb.hdot_list)
@@ -164,20 +165,22 @@ range.get_data()
 #endregion
 
 #region // Cruise
-cruiseDist, Wcruises, cruiseLDs, cruiseAlpha, cruisets, cruiseh, cruiseV, cruiseopth, cruiseThrottle = cruise(aircraft)
+cruiseDist, Wcruises, cruiseLDs, cruiseAlpha, cruisets, cruiseh, cruiseV, cruiseopth, cruiseThrottle, cruiseTheta = cruise(aircraft)
+cruiseHours = cruisets/60**2
 
 print(f"Cruise weight ratio: {Wcruises[-1]/Wcruises[0]:.3f}")
 print(f"Cruise time: {cruisets[-1]/3600:.1f} hours")
 
 fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
 
-axs[0,0].plot(cruiseDist/1e3,cruiseh/1e3,label = "Altitude [km]",color='blue')
-axs[0,0].plot(cruiseDist/1e3,cruiseopth/1e3,label = "Optimal altitude [km]",color='cyan')
-axs[0,1].plot(cruiseDist/1e3,cruiseAlpha*180/np.pi,label = "Angle of attack [deg]",color='red')
-axs[1,0].plot(cruiseDist/1e3,cruiseLDs,label = "L/D ratio",color='green')
-axs[1,1].plot(cruiseDist/1e3,Wcruises/1e3,label = "Weight [t]",color='orange')
-axs[2,0].plot(cruiseDist/1e3,cruiseThrottle,label = "Throttle setting",color='purple')
-axs[2,1].plot(cruiseDist/1e3,cruiseV,label = "Velocity [m/s]",color='brown')
+axs[0,0].plot(cruisets,cruiseh/1e3,label = "Altitude [km]",color='blue')
+axs[0,0].plot(cruisets,cruiseopth/1e3,label = "Optimal altitude [km]",color='cyan')
+axs[0,1].plot(cruisets,cruiseAlpha*180/np.pi,label = "Angle of attack [deg]",color='red')
+axs[0,1].plot(cruisets,cruiseTheta*180/np.pi,label="Pitch angle [deg]",color="blue",linestyle="--")
+axs[1,0].plot(cruisets,cruiseLDs,label = "L/D ratio",color='green')
+axs[1,1].plot(cruisets,Wcruises/1e3,label = "Weight [t]",color='orange')
+axs[2,0].plot(cruisets,cruiseThrottle,label = "Throttle setting",color='purple')
+axs[2,1].plot(cruisets,cruiseV,label = "Velocity [m/s]",color='brown')
 
 axs[2,1].ticklabel_format(useOffset=False, style='plain')
 
@@ -188,10 +191,11 @@ axs[1,1].set_ylabel("Weight [t]")
 axs[2,0].set_ylabel("Throttle setting")
 axs[2,1].set_ylabel("Velocity [m/s]")
 
-axs[2,0].set_xlabel("Cruise distance [km]")
-axs[2,1].set_xlabel("Cruise distance [km]")
+axs[2,0].set_xlabel("Cruise time [s]")
+axs[2,1].set_xlabel("Cruise time [s]")
 
 axs[0,0].legend()
+axs[0,1].legend()
 
 mpl.rc("savefig", dpi=300)
 plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
@@ -200,6 +204,42 @@ plt.show()
 #endregion
 
 #region // Loiter
+loiterAlpha, loiterThrottle, loiterW, loiterts, loiterV, loiterLDs, loiterTheta, loiterDist = loiter(aircraft)
+
+print(f"Loiter weight ratio: {loiterW[-1]/loiterW[0]:.3f}")
+print(f"Loiter time: {loiterts[-1]/3600:.1f} hours")
+
+fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
+
+axs[0,1].plot(loiterts/1e3,loiterAlpha*180/np.pi,label = "Angle of attack [deg]",color='red')
+axs[0,1].plot(loiterts/1e3,loiterTheta*180/np.pi,label="Pitch angle [deg]",color="blue",linestyle="--")
+axs[1,0].plot(loiterts/1e3,loiterLDs,label = "L/D ratio",color='green')
+axs[1,1].plot(loiterts/1e3,loiterW/1e3,label = "Weight [t]",color='orange')
+axs[2,0].plot(loiterts/1e3,loiterThrottle,label = "Throttle setting",color='purple')
+axs[2,1].plot(loiterts/1e3,loiterV,label = "Velocity [m/s]",color='brown')
+
+axs[0,1].ticklabel_format(useOffset=False, style='plain')
+axs[1,0].ticklabel_format(useOffset=False, style='plain')
+axs[1,1].ticklabel_format(useOffset=False, style='plain')
+axs[2,0].ticklabel_format(useOffset=False, style='plain')
+axs[2,1].ticklabel_format(useOffset=False, style='plain')
+
+axs[0,0].set_ylabel("Altitude [km]")
+axs[0,1].set_ylabel("Angle of attack [deg]")
+axs[1,0].set_ylabel("L/D ratio")
+axs[1,1].set_ylabel("Weight [t]")
+axs[2,0].set_ylabel("Throttle setting")
+axs[2,1].set_ylabel("Velocity [m/s]")
+
+axs[2,0].set_xlabel("Loiter time [s]")
+axs[2,1].set_xlabel("Loiter time[s]")
+
+axs[0,1].legend()
+
+mpl.rc("savefig", dpi=300)
+plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
+
+plt.show()
 #endregion
 
 #region // Descent

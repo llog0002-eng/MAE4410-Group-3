@@ -3,10 +3,12 @@ def cruise(aircraft):
     # Output: 
 
     import numpy as np
+    import pandas as pd
     from ISA import ISA
     from ISA_rho import ISA_rho
-    g = 9.80665                                   # Gravitational acceleration m2/s
-    rho0 = 1.225                                  # Sea level air density, kg/m3
+
+    g = 9.80665                                     # Gravitational acceleration m2/s
+    rho0 = 1.225                                    # Sea level air density, kg/m3
     
     S = aircraft.S                                  # Wing area, m2
     Tmax = aircraft.Tmax_continuous                 # Max continuous thrust, N
@@ -39,6 +41,7 @@ def cruise(aircraft):
     cruiseV = np.zeros(n)                           # Velocity array, m/s
     cruiseopth = np.zeros(n)                        # Optimal altitude array, m
     cruiseThrottle = np.zeros(n)                    # Throttle setting array
+    cruiseTheta = np.zeros(n)                       # Pitch angle array
 
     # Initial cruise density
     rhoi = 2 * aircraft.W * g / (np.sqrt(CD0/K) * S * V**2)
@@ -46,7 +49,7 @@ def cruise(aircraft):
     cruiseh[0] = ISA_rho(rhoi)
     climbing = False
 
-    for i in range(len(cruiseDist)):
+    for i in range(n):
         
         # Atmospheric properties at current altitude
         T, P, rhorho0, c = ISA(cruiseh[i])
@@ -72,7 +75,7 @@ def cruise(aircraft):
         cruisets[i] = i*dt
 
         # Airspeed performance correction
-        a0d_cruise = 1 + aircraft.av * V/aircraft.c
+        a0d_cruise = 1 + aircraft.av * V/c
         # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, cruise
         alphae_cruise = a0d_cruise * (rhorho0)**aircraft.a
 
@@ -81,6 +84,8 @@ def cruise(aircraft):
             climbing = True
             # Climb rate, m/s
             hdot = aircraft.hdotceil
+            # Flight path angle
+            gamma = np.asin(aircraft.hdotceil/V)
             # CL at climb, assume small contribution from lift due to thrust
             CL_C = 2 * aircraft.W * g / (rho * aircraft.S * V**2)
             # CD at climb
@@ -89,6 +94,8 @@ def cruise(aircraft):
             cruiseLDs[i] = CL_C / CD_C
             # Angle of attack at climb
             cruiseAlpha[i] = (CL_C - aircraft.CL0_C) / (aircraft.CLalpha_C)
+            # Pitch angle
+            cruiseTheta[i] = cruiseAlpha[i]+gamma
 
             # Update altitude
             if i < n-1:
@@ -103,6 +110,8 @@ def cruise(aircraft):
             climbing = False
             # Zero climb rate
             hdot = 0
+            # Zero flight path angle
+            gamma = 0
             # CL at steady level cruise, assume small contribution from lift due to thrust
             CL_C = 2 * aircraft.W * g / (rho * aircraft.S * V**2)
             # CD at steady level cruise
@@ -111,13 +120,15 @@ def cruise(aircraft):
             cruiseLDs[i] = CL_C / CD_C
             # Angle of attack at steady level cruise
             cruiseAlpha[i] = (CL_C - aircraft.CL0_C) / (aircraft.CLalpha_C)
+            # Pitch angle
+            cruiseTheta[i]=cruiseAlpha[i]
 
             # Update altitude
             if i < n-1:
                 cruiseh[i+1] = cruiseh[i]
 
         # Solve for required thrust
-        T = aircraft.W * g / cruiseLDs[i] * (1 + V / (aircraft.Ma * c) * hdot / V)
+        T = aircraft.W * g * (np.cos(cruiseTheta[i])/ cruiseLDs[i] + np.sin(cruiseTheta[i]))
 
         # Solve for required throttle setting
         cruiseThrottle[i] = T / (alphae_cruise * aircraft.Tmax)
@@ -127,4 +138,6 @@ def cruise(aircraft):
         aircraft.W -= dm
         cruiseW[i] = aircraft.W
 
-    return cruiseDist, cruiseW, cruiseLDs, cruiseAlpha, cruisets, cruiseh, cruiseV, cruiseopth, cruiseThrottle
+    aircraft.h = cruiseh[n-1]
+
+    return cruiseDist, cruiseW, cruiseLDs, cruiseAlpha, cruisets, cruiseh, cruiseV, cruiseopth, cruiseThrottle, cruiseTheta
