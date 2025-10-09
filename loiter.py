@@ -18,7 +18,7 @@ def loiter(aircraft):
     CL0 = aircraft.CL0_C                            # Zero angle of attack lift coefficient
     CLalpha = aircraft.CLalpha_C                    # Lift curve slope, per rad
 
-    loiterh = aircraft.h
+    loiterh = aircraft.altitude
     T, P, rhorho0, c = ISA(loiterh)
     rho = rho0*rhorho0
 
@@ -71,7 +71,7 @@ def loiter(aircraft):
             "time": ts,
             "altitude": np.ones(n)*loiterh,
             "speed": Vs,
-            "optimal altitude": np.zeros(n),
+            "optimal altitude": np.full(n, np.nan),
             "throttle": throttles,
             "theta": alpha,
         }

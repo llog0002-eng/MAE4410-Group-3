@@ -17,6 +17,7 @@ def cruise(aircraft):
     CD0 = aircraft.CD0_C                            # Zero lift drag coefficient
     CL0 = aircraft.CL0_C                            # Zero angle of attack lift coefficient
     CLalpha = aircraft.CLalpha_C                    # Lift curve slope, per rad
+    TSFC = aircraft.TSFC_C/1e6                      # TSFC, kg/(N.s)
 
     # Cruise lift coefficient, max L/D
     CL_LDmax = np.sqrt(CD0 / K)
@@ -29,9 +30,11 @@ def cruise(aircraft):
     LD = 1/2*np.sqrt(1/(K*CD0))
     print('Max L/D: ', round(LD,2))
     
-    n = 1000 # Number of distance steps in cruise simulation
+    n = 5000 # Number of distance steps in cruise simulation
 
-    dist = np.linspace(0, aircraft.range, n)          # Cruise distance array, m
+    cruise_dist = aircraft.range
+
+    dist = np.linspace(0, cruise_dist, n)             # Cruise distance array, m
     m = np.zeros(n)                                   # Mass array, kg
     m[0] = aircraft.W                                 # Initial mass, kg
     LDs = np.zeros(n)                                 # L/D array
@@ -72,7 +75,8 @@ def cruise(aircraft):
             h_targ = h_targ_opt
 
         dt = aircraft.range / (n-1) / V  # Time step, s
-        ts[i] = i*dt
+        if i != 0:
+            ts[i] = ts[i-1] + dt
 
         # Airspeed performance correction
         a0d_cruise = 1 + aircraft.av * V/c
@@ -128,17 +132,17 @@ def cruise(aircraft):
                 hs[i+1] = hs[i]
 
         # Solve for required thrust
-        T = aircraft.W * g * (np.cos(thetas[i])/ LDs[i] + np.sin(thetas[i]))
+        T = aircraft.W * g * (1 / LDs[i] + np.sin(gamma))
 
         # Solve for required throttle setting
         throttles[i] = T / (alphae_cruise * aircraft.Tmax)
 
         # Update weight
-        dm = aircraft.TSFC_C * T / 1e6 * dt  # Fuel flow, kg
+        dm = TSFC * T * dt  # Fuel flow, kg
         aircraft.W -= dm
         m[i] = aircraft.W
 
-    aircraft.h = hs[n-1]
+    aircraft.altitude = hs[n-1]
 
     df = pd.DataFrame(
         {

@@ -27,7 +27,7 @@ def takeoff(aircraft):
 
     # Initialise variables
     err = 1
-    modifier = 1 # Used to make changes in pitch finer over time
+    modifier = 1 # Pitch angle convergence modifier
     j = 0 # Outer while loop iteration count
     i = 0 # Inner while loop iteration count
     speed_too_low = True
@@ -50,7 +50,10 @@ def takeoff(aircraft):
         Vs[0] = VLOF
         dist[0] = 3*VLOF
         m[0] = aircraft.W
+        CL = W_TO/np.cos(theta_TO) / (0.5*aircraft.rho0*Vs[0]**2*aircraft.S)
+        alpha[0] = (CL - aircraft.CL0_TO) / aircraft.CLalpha_TO  # Angle of attack, rad
 
+        # While below the screen height
         while altitude[i] < aircraft.hscreen:
 
             if i > n:
@@ -61,10 +64,10 @@ def takeoff(aircraft):
             LDs[i] = CL/CD
             D = 0.5*aircraft.rho0*Vs[i]**2*aircraft.S*CD
 
-            alpha[i] = (CL - aircraft.CL0_TO) / aircraft.CLalpha_TO  # Angle of attack, rad
-            gamma_TO = theta_TO - alpha[i] # Flight path angle, rad
+            alpha[i+1] = (CL - aircraft.CL0_TO) / aircraft.CLalpha_TO  # Angle of attack, rad
+            gamma_TO = theta_TO - alpha[i+1] # Flight path angle, rad
 
-            Vs[i+1] = Vs[i] + (T_TO - D - W_TO*np.sin(theta_TO))/(W_TO/g) * dt
+            Vs[i+1] = Vs[i] + (T_TO - D - W_TO*np.sin(gamma_TO))/(W_TO/g) * dt
             dist[i+1] = dist[i] + Vs[i]*np.cos(gamma_TO)*dt
             hdot_TO = Vs[i]*np.sin(gamma_TO)
             altitude[i+1] = altitude[i] + hdot_TO*dt
@@ -107,8 +110,8 @@ def takeoff(aircraft):
 
         err = abs(1-Vs[i]/V2)
 
-    print(f'Airspeed at takeoff is {Vs[i]:.2f} m/s.\n\nThe final air distance is {dist[-1]:.2f} m.')
-    print(f"Angle of attack at takeoff is {alpha[-1]*180/np.pi:.2f} degrees.")
+    print(f'Airspeed at takeoff is {Vs[i]:.2f} m/s.\n\nThe final air distance is {dist[i]:.2f} m.')
+    print(f"Angle of attack at takeoff is {alpha[i]*180/np.pi:.2f} degrees.")
 
     df = pd.DataFrame(
         {
@@ -119,7 +122,7 @@ def takeoff(aircraft):
             "time": ts[:i],
             "altitude": altitude[:i],
             "speed": Vs[:i],
-            "optimal altitude": np.zeros(i),
+            "optimal altitude": np.full(i,np.nan),
             "throttle": throttles[:i],
             "theta": theta[:i],
         }

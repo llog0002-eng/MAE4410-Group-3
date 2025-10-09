@@ -3,10 +3,13 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
+
 from takeoff import takeoff
 from climb import Climb
 from cruise import cruise
 from loiter import loiter
+from descent import descent
+
 from range import Range
 
 class aircraft_class:
@@ -20,6 +23,7 @@ class aircraft_class:
     c0 = 340.3                  # Speed of sound at SSL
     c = 295.2                   # Speed of sound at 11km, m/s
     Ma = 0.85                   # Cruise speed, Ma
+    altitude = 0                # Altitude, m (preallocated)
 
     betaw = 1                   # Ratio of actual weight to maximum weight
     betaw_taxi = 0.99
@@ -42,11 +46,13 @@ class aircraft_class:
 
     climbgrad_oei_landgear = 0  # Minimum climb gradient for one engine inoperative (OEI) with landing gear extended, CASA part 121, section 9.05
     climbgrad_oei_clean = 2/100 # Minimum climb gradient for one engine inoperative (OEI) with landing gear retracted, CASA part 121, section 9.05
-    hdotceil = 1.27             # Climb rate requirement for ceiling, typical value, m/s
+    hdotceil = 1                # Climb rate requirement for ceiling, typical value, m/s
 
     range = 8000e3              # Range requirement, m
     loiter_time = 30*60         # Loiter time requirement, s
-    cruise_climb_inc = 300     # Altitude increment for cruise climb, m
+    cruise_climb_inc = 300      # Altitude increment for cruise climb, m
+    descent_gamma = 3           # Typical descent angle, deg (https://books.google.com.au/books?id=ZmTfH0bYz_YC&redir_esc=y)
+    descent_hdot = 15           # Typical descent speed, m/s (https://pilotinstitute.com/how-to-calculate-descent)
 
     g = 9.80665                 # Gravitational acceleration m2/s
     Wmax = WTO*g
@@ -66,7 +72,7 @@ class aircraft_class:
     TSFC_C = 14.4                       # Cruise TSFC, g/(kN.s)
     TSFC_TO = TSFC_C * 1.2              # Takeoff TSFC, g/(kN.s)
     ip = 0                              # Constant angle of incidence of propulsion system. Zero if engines are parallel to the pitch angle
-
+    
     """
     Aerodynamic Dependent
     """
@@ -195,14 +201,22 @@ print(f"Loiter time: {loitertime:.1f} hours")
 
 #region // Combining data
 
+dfs = [takeoffdf, cruisedf, loiterdf]
 
+# Update each df's starting time/distance from the previous df's end time/distance
+for i in range(len(dfs)-1):
+    dfs[i+1]["time"] = dfs[i+1]["time"] + dfs[i].iloc[-1]["time"]
+    dfs[i+1]["distance"] = dfs[i+1]["distance"] + dfs[i].iloc[-1]["distance"]
+
+# Concatenate all dfs
+totdf = pd.concat(dfs)
 
 #endregion
 
 
 #region // Plotting
 
-plotdf = loiterdf
+plotdf = totdf
 
 fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
 
