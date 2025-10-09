@@ -62,8 +62,6 @@ def loiter(aircraft):
         if i != 0:
             dist[i] = dist[i-1] + dt * V
 
-    loiterTheta = alpha
-
     df = pd.DataFrame(
         {
             "distance": dist,
