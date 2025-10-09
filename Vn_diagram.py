@@ -1,9 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from flightpath_sim import aircraft_class as aircraft
 
-def Vn_diagram(step):
+def Vn_diagram(aircraft, step):
     W = aircraft.Wmax
     rho = aircraft.rho0
     S = aircraft.S
@@ -11,9 +10,8 @@ def Vn_diagram(step):
     n_neg_limit = aircraft.n_neg_limit
 
 
-
-    CL_max = 
-    CL_min = 
+    CL_max = aircraft.CL_max
+    CL_min = aircraft.CL_min
     V_C_pos = np.sqrt(2 * W * n_pos_limit / (rho * S * CL_max))
     V_C_neg = np.sqrt(2 * W * n_neg_limit / (rho * S * CL_min))
     V_D = 1.25 * V_C_pos
@@ -52,8 +50,6 @@ def Vn_diagram(step):
     plt.xlabel("Airspeed [m/s]")
     plt.ylabel("Load Factor n")
     plt.legend()
-    plt.title("V–n Diagram: Flight Envelope")
+    plt.title("V-n Diagram: Flight Envelope")
 
 
-Vn_diagram(1)
-plt.show()

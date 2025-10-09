@@ -11,6 +11,7 @@ from loiter import loiter
 from descent import descent
 
 from range import Range
+from Vn_diagram import Vn_diagram
 
 class aircraft_class:
     
@@ -72,6 +73,7 @@ class aircraft_class:
     TSFC_C = 14.4                       # Cruise TSFC, g/(kN.s)
     TSFC_TO = TSFC_C * 1.2              # Takeoff TSFC, g/(kN.s)
     ip = 0                              # Constant angle of incidence of propulsion system. Zero if engines are parallel to the pitch angle
+    rp = 2.658                          # distance between centre of engine to centre of mass, m
     
     """
     Aerodynamic Dependent
@@ -87,6 +89,8 @@ class aircraft_class:
     CL0_TO = 1
     CD0_TO = 0.0087 + 0.004212  # Added for landing gear drag
     CLalpha_TO = 2.835          # Lift curve slope, per rad
+    CL_max = 0.72
+    CL_min = -0.55
 
     ### Climb
     CL0_CL = 0.1219
@@ -254,6 +258,9 @@ mpl.rc("savefig", dpi=300)
 plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
 
 fig.suptitle("Climb")
+
+Vn_diagram(aircraft,1)
+
 plt.show()
 
 #endregion

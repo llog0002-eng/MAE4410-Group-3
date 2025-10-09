@@ -228,26 +228,7 @@ class Climb:
         self.Horiz_dis_accel = np.array(Horiz_dis_accel)
         self.W_fuel_list = np.array(W_fuel_list)
 
-        # self.dist = np.array(dist)
-        # self.m = np.array(m)
-        # self.throttles = np.array(throttles)
-        # self.ts = np.array(ts)
-        # self.LDs = np.array(LDs)
-
-        # self.df = pd.DataFrame(
-        #     {
-        #         "distance": dist,
-        #         "mass": m,
-        #         "L/D": LDs,
-        #         "AoA": alpha_list[1:],
-        #         "time": ts,
-        #         "altitude": self.altitude_list[1:],
-        #         "speed": self.Vs,
-        #         "optimal altitude": np.full(n, np.nan),
-        #         "throttle": throttles,
-        #         "theta": theta_list[1:],
-        #     }
-        # )
+        
         n = len(c_list)-2
         self.df = pd.DataFrame(
             {
