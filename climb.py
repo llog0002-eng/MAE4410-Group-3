@@ -53,6 +53,7 @@ class Climb:
         Drag_list = []
         CL_list = []
         CD_list = []
+        alphae_CL_list = []
         
         # This big for loop is to calculate theta, AoA, gamma...
         # Follow the algorithm from wk6 workshop slide page 10
@@ -69,6 +70,7 @@ class Climb:
             Drag_list.append([])
             CL_list.append([])
             CD_list.append([])
+            alphae_CL_list.append([])
 
             for V in self.Vair_CL:
                 error = self.tol
@@ -81,6 +83,7 @@ class Climb:
                 alphae_CL = a0d_CL * (sigma_list[i])**aircraft.a    # Ratio of maximum static thrust or power at sea level to the thrust or power at the desired operating condition, takeoff
                 T_CL = aircraft.Tmax*alphae_CL
                 Thrust_list[-1].append(T_CL)
+                alphae_CL_list[-1].append(alphae_CL)
                 
                 while error >= self.tol:
                     theta_C_old = theta_C
@@ -108,6 +111,7 @@ class Climb:
                 Drag_list[-1].append(D)
                 CL_list[-1].append(CL)
                 CD_list[-1].append(CD)
+                
 
         
         self.gamma_CL_list = ["Flight Path Angle $\\gamma$", "Air Speed [m/s]", "$\\gamma$ [degrees]", np.array(gamma_CL_list)]
@@ -120,6 +124,7 @@ class Climb:
         self.Drag_list = ["Drag at Diff Altitude", "Air Speed [m/s]", "D [N]", np.array(Drag_list)]
         self.CL_list = ["Lift Coefficient", "Air Speed [m/s]", "CL", np.array(CL_list)]
         self.CD_list = ["Drag Coefficient", "Air Speed [m/s]", "CD", np.array(CD_list)]
+        alphae_CL_list = ["Throttle Setting", "Air Speed [m/s]", "$\\alpha$_CL", np.array(alphae_CL_list)]
 
 
         # Following codes are just finding max climb rate and gradient at every altitude
@@ -208,7 +213,7 @@ class Climb:
             t += dt_CL + dt_accel
             ts[i-1] = t
 
-            throttle = T/self.Thrust_list[-1][i][max_hdot_index]
+            throttle = alphae_CL_list[-1][i][max_hdot_index]
             throttles[i-1] = throttle
 
             mf_dot = aircraft.TSFC_TO*10**(-6)*T

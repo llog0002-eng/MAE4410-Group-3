@@ -159,7 +159,7 @@ climb = Climb(aircraft, 0, 12000, 500, 0.0001, 1)
 # climb.get_plot(climb.hdot_list)
 # climb.get_Service_Ceiling()
 # climb.get_all_plot()
-climb_df = climb.get_flight_sim(aircraft)
+climbdf = climb.get_flight_sim(aircraft)
 
 # #endregion
 
@@ -207,7 +207,7 @@ print(f"descent time: {descenttime:.1f} hours")
 
 #region // Combining data
 
-dfs = [takeoffdf, climb_df, cruisedf, loiterdf, descentdf]
+dfs = [takeoffdf, climbdf, cruisedf, loiterdf, descentdf]
 
 # Update each df's starting time/distance from the previous df's end time/distance
 for i in range(len(dfs)-1):
@@ -222,7 +222,7 @@ totdf = pd.concat(dfs)
 
 #region // Plotting
 
-plotdf = descentdf
+plotdf = climbdf
 
 fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
 
@@ -253,7 +253,7 @@ axs[0,1].legend()
 mpl.rc("savefig", dpi=300)
 plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
 
-fig.suptitle("Descent")
+fig.suptitle("Climb")
 plt.show()
 
 #endregion
