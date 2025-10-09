@@ -19,7 +19,7 @@ def loiter(aircraft):
     CLalpha = aircraft.CLalpha_DE                    # Lift curve slope, per rad
 
     loiterh = aircraft.altitude
-    T, P, rhorho0, c = ISA(loiterh)
+    Temp, P, rhorho0, c = ISA(loiterh)
     rho = rho0*rhorho0
 
     n = 100 # Number of time steps in loiter simulation
