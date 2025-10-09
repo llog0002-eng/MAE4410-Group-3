@@ -55,7 +55,7 @@ def cruise(aircraft):
     for i in range(n):
         
         # Atmospheric properties at current altitude
-        T, P, rhorho0, c = ISA(hs[i])
+        Temp, P, rhorho0, c = ISA(hs[i])
         rho = rhorho0 * rho0
         V = aircraft.Ma * c
         Vs[i] = V

@@ -52,7 +52,7 @@ class aircraft_class:
     loiter_time = 30*60         # Loiter time requirement, s
     cruise_climb_inc = 300      # Altitude increment for cruise climb, m
     descent_gamma = 3           # Typical descent angle, deg (https://books.google.com.au/books?id=ZmTfH0bYz_YC&redir_esc=y)
-    descent_hdot = 15           # Typical descent speed, m/s (https://pilotinstitute.com/how-to-calculate-descent)
+    descent_hdot = 13           # Typical descent speed, m/s (https://pilotinstitute.com/how-to-calculate-descent)
 
     g = 9.80665                 # Gravitational acceleration m2/s
     Wmax = WTO*g
@@ -191,7 +191,12 @@ print(f"Loiter time: {loitertime:.1f} hours")
 
 
 #region // Descent
+descentdf = descent(aircraft)
 
+descentmratio = descentdf.iloc[-1]["mass"]/descentdf.iloc[0]["mass"]
+descenttime = descentdf.iloc[-1]["time"]/3600
+print(f"descent weight ratio: {descentmratio:.3f}")
+print(f"descent time: {descenttime:.1f} hours")
 #endregion
 
 
@@ -202,7 +207,7 @@ print(f"Loiter time: {loitertime:.1f} hours")
 
 #region // Combining data
 
-dfs = [takeoffdf, climb_df, cruisedf, loiterdf]
+dfs = [takeoffdf, climb_df, cruisedf, loiterdf, descentdf]
 
 # Update each df's starting time/distance from the previous df's end time/distance
 for i in range(len(dfs)-1):
@@ -217,7 +222,7 @@ totdf = pd.concat(dfs)
 
 #region // Plotting
 
-plotdf = totdf
+plotdf = descentdf
 
 fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
 
@@ -248,7 +253,7 @@ axs[0,1].legend()
 mpl.rc("savefig", dpi=300)
 plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
 
-fig.suptitle("Loiter")
+fig.suptitle("Descent")
 plt.show()
 
 #endregion
