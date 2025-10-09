@@ -153,12 +153,13 @@ takeoffdf = takeoff(aircraft)
 
 
 # #region // Climb
-# climb = climb(aircraft, 0, 12000, 500, 0.0001, 1)
+climb = Climb(aircraft, 0, 12000, 500, 0.0001, 1)
 # climb.best_RC_data()
 # climb.best_AC_data()
 # climb.get_plot(climb.hdot_list)
 # climb.get_Service_Ceiling()
 # climb.get_all_plot()
+climb_df = climb.get_flight_sim(aircraft)
 
 # #endregion
 
@@ -201,7 +202,7 @@ print(f"Loiter time: {loitertime:.1f} hours")
 
 #region // Combining data
 
-dfs = [takeoffdf, cruisedf, loiterdf]
+dfs = [takeoffdf, climb_df, cruisedf, loiterdf]
 
 # Update each df's starting time/distance from the previous df's end time/distance
 for i in range(len(dfs)-1):

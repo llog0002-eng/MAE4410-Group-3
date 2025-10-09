@@ -1,6 +1,7 @@
 # from flightpath_sim import aircraft_class as aircraft
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from tabulate import tabulate
 
@@ -11,13 +12,14 @@ class Climb:
         
         # U might notice that most of the code are under this def __init__ function, can just treat it as a normal function
         # when u see self.XX means this variable will be stored inside the class, u can access them at any time
-        # For any other variables that don't have self. ahead, they will be deleted AFTER the class is executed and u can access them anymore
+        # For any other variables that don't have self. ahead, they will be deleted AFTER the class is executed and u can't access them anymore
         # Not only outside of the class, u can't even access them as long as outside of this def __init__ function
         self.start = start
         self.end = end
         self.increment = increment
         self.tol = tolerence
         self.step = step
+        # self.dt = dt
     
         altitude_list = list(range(start, end+increment, increment))
         with open('ISA.csv', 'r') as file:
@@ -49,6 +51,8 @@ class Climb:
         hdot_list = []
         Thrust_list = []
         Drag_list = []
+        CL_list = []
+        CD_list = []
         
         # This big for loop is to calculate theta, AoA, gamma...
         # Follow the algorithm from wk6 workshop slide page 10
@@ -63,6 +67,8 @@ class Climb:
             hdot_list.append([])
             Thrust_list.append([])
             Drag_list.append([])
+            CL_list.append([])
+            CD_list.append([])
 
             for V in self.Vair_CL:
                 error = self.tol
@@ -81,6 +87,7 @@ class Climb:
                     L = self.W_CL*np.cos(theta_C) - T_CL*np.sin(AoA_p)
                     CL = L/(0.5*aircraft.rho0*V**2*aircraft.S)       
                     D = 0.5*aircraft.rho0*V**2*aircraft.S*(aircraft.CD0_CL+K*CL**2)
+                    CD = D/(0.5*aircraft.rho0*V**2*aircraft.S)
                     gamma_C = np.arctan( (T_CL*np.cos(AoA_p)-D) / (L+T_CL*np.sin(AoA_p)))
 
                     AoA_C = (CL-aircraft.CL0_CL)/aircraft.CLalpha_CL
@@ -99,6 +106,8 @@ class Climb:
                 AoA_list[-1].append(AoA_p*180/np.pi)
                 hdot_list[-1].append(hdot)
                 Drag_list[-1].append(D)
+                CL_list[-1].append(CL)
+                CD_list[-1].append(CD)
 
         
         self.gamma_CL_list = ["Flight Path Angle $\\gamma$", "Air Speed [m/s]", "$\\gamma$ [degrees]", np.array(gamma_CL_list)]
@@ -109,11 +118,16 @@ class Climb:
         self.hdot_list = ["Max R/C", "Air Speed [m/s]", "h_dot [m/s]", np.array(hdot_list)]
         self.Thrust_list = ["Maximum Thrsut at Diff Altitude", "Air Speed [m/s]", "T [N]", np.array(Thrust_list)]
         self.Drag_list = ["Drag at Diff Altitude", "Air Speed [m/s]", "D [N]", np.array(Drag_list)]
+        self.CL_list = ["Lift Coefficient", "Air Speed [m/s]", "CL", np.array(CL_list)]
+        self.CD_list = ["Drag Coefficient", "Air Speed [m/s]", "CD", np.array(CD_list)]
 
 
         # Following codes are just finding max climb rate and gradient at every altitude
         self.max_hdot_list = []
         self.max_theta_list = []
+        alpha_list = np.zeros(len(c_list))
+        theta_list = np.zeros(len(c_list))
+        Vs = np.zeros(len(c_list))
         for i in range(len(c_list)):
             max_hdot = np.max(hdot_list[i])
             max_hdot_index = np.where(hdot_list[i] == max_hdot)
@@ -121,7 +135,13 @@ class Climb:
             max_hdot_theta = self.theta_CL_list[-1][i][max_hdot_index]
             max_hdot_gamma = self.gamma_CL_list[-1][i][max_hdot_index]
             max_hdot_AoA = self.AoA_list[-1][i][max_hdot_index]
-            self.max_hdot_list.append([self.altitude_list[i], max_hdot, max_hdot_index, max_hdot_V, max_hdot_theta, max_hdot_gamma, max_hdot_AoA])
+            max_hdot_CL = self.CL_list[-1][i][max_hdot_index]
+            max_hdot_CD = self.CD_list[-1][i][max_hdot_index]
+
+            alpha_list[i] = max_hdot_AoA*np.pi/180
+            theta_list[i] = max_hdot_theta*np.pi/180
+            Vs[i] = max_hdot_V
+            self.max_hdot_list.append([self.altitude_list[i], max_hdot, max_hdot_index, max_hdot_V, max_hdot_theta, max_hdot_gamma, max_hdot_AoA, max_hdot_CL, max_hdot_CD])
 
             max_thetae = np.max(theta_CL_list[i])
             max_theta_index = np.where(theta_CL_list[i] == max_thetae)
@@ -129,7 +149,13 @@ class Climb:
             max_theta_hdot = self.hdot_list[-1][i][max_theta_index]
             max_theta_gamma = self.gamma_CL_list[-1][i][max_theta_index]
             max_theta_AoA = self.AoA_list[-1][i][max_theta_index]
-            self.max_theta_list.append([self.altitude_list[i], max_thetae, max_theta_index, max_theta_hdot, max_theta_v, max_theta_gamma, max_theta_AoA])
+            max_theta_CL = self.CL_list[-1][i][max_theta_index]
+            max_theta_CD = self.CD_list[-1][i][max_theta_index]
+            self.max_theta_list.append([self.altitude_list[i], max_thetae, max_theta_index, max_theta_hdot, max_theta_v, max_theta_gamma, max_theta_AoA, max_theta_CL, max_theta_CD])
+        
+        self.alpha_list = np.array(alpha_list)
+        self.theta_list = np.array(theta_list)
+        self.Vs = np.array(Vs)
 
 
         Time_CL = []
@@ -137,13 +163,22 @@ class Climb:
         Time_accel = []
         Horiz_dis_accel = []
         W_fuel_list = []
-        V_new = self.max_hdot_list[0][3]
+        throttles = np.zeros(len(c_list)-1)
+        LDs = np.zeros(len(c_list)-1)
+        ts = np.zeros(len(c_list)-1)
+        dist = np.zeros(len(c_list)-1)
+        # V_new = self.max_hdot_list[0][3]
+        V_new = aircraft.V2
+
+        m = np.zeros(len(c_list)-1)
+        dis = 0
+        t = 0
         for i in range(1, len(c_list)):
             # Time to climb and Horizontal distance covered
             max_hdot_index = self.max_hdot_list[i][2]
             max_hdot_V = self.max_hdot_list[i][3]
             max_hdot = self.max_hdot_list[i][1]
-            max_hdot_gamma = self.gamma_CL_list[-1][i][max_hdot_index]
+            max_hdot_gamma = self.gamma_CL_list[-1][i][max_hdot_index]*np.pi/180
 
             dt_CL = increment/max_hdot
             dSC_CL = max_hdot_V*np.cos(max_hdot_gamma)*dt_CL
@@ -156,14 +191,30 @@ class Climb:
             dV = np.abs(V_old - V_new)
             T = self.Thrust_list[-1][i][max_hdot_index]
             D = self.Drag_list[-1][i][max_hdot_index]
+            CL = self.CL_list[-1][i][max_hdot_index]
+            CD = self.CD_list[-1][i][max_hdot_index]
+
+            LD = CL/CD
+            LDs[i-1] = LD
+
             dt_accel = self.W_CL/aircraft.g*dV / (T-D)
             dSC_accel = dV*dt_accel/2
             Time_accel.append(dt_accel)
             Horiz_dis_accel.append(dSC_accel)
 
+            dis += dSC_CL + dSC_accel
+            dist[i-1] = dis
+
+            t += dt_CL + dt_accel
+            ts[i-1] = t
+
+            throttle = T/self.Thrust_list[-1][i][max_hdot_index]
+            throttles[i-1] = throttle
+
             mf_dot = aircraft.TSFC_TO*10**(-6)*T
             W_fuel = mf_dot*(dt_CL + dt_accel)*aircraft.g
             self.W_CL -= W_fuel
+            m[i-1] = self.W_CL/(aircraft.g)
             W_fuel_list.append(W_fuel)
 
         self.Time_CL = np.array(Time_CL)
@@ -172,12 +223,56 @@ class Climb:
         self.Horiz_dis_accel = np.array(Horiz_dis_accel)
         self.W_fuel_list = np.array(W_fuel_list)
 
-        print(f'Fuel consumption during the climb is {np.sum(self.W_fuel_list)/aircraft.g} kg.\
-        \nThe final weight is {self.W_CL[0]/aircraft.g} kg\
-        \nTotal time is {(np.sum(self.Time_CL) + np.sum(self.Time_accel))/60} mins')
+        # self.dist = np.array(dist)
+        # self.m = np.array(m)
+        # self.throttles = np.array(throttles)
+        # self.ts = np.array(ts)
+        # self.LDs = np.array(LDs)
+
+        # self.df = pd.DataFrame(
+        #     {
+        #         "distance": dist,
+        #         "mass": m,
+        #         "L/D": LDs,
+        #         "AoA": alpha_list[1:],
+        #         "time": ts,
+        #         "altitude": self.altitude_list[1:],
+        #         "speed": self.Vs,
+        #         "optimal altitude": np.full(n, np.nan),
+        #         "throttle": throttles,
+        #         "theta": theta_list[1:],
+        #     }
+        # )
+        n = len(c_list)-2
+        self.df = pd.DataFrame(
+            {
+                "distance": dist[:-1],
+                "mass": m[:-1],
+                "L/D": LDs[:-1],
+                "AoA": alpha_list[1:-1],
+                "time": ts[:-1],
+                "altitude": self.altitude_list[1:-1],
+                "speed": self.Vs[1:-1],
+                "optimal altitude": np.full(n, np.nan),
+                "throttle": throttles[:-1],
+                "theta": theta_list[1:-1],
+            }
+        )
+
+        
 
 
-    
+    def get_flight_sim(self, aircraft):
+        print(f'\nFuel consumption during the climb is {np.sum(self.W_fuel_list)/(aircraft.g*1000)} t.\
+        \nThe final weight is {self.W_CL[0]/(aircraft.g*1000)} t\
+        \nTotal time is {(np.sum(self.Time_CL) + np.sum(self.Time_accel))/60} mins\n')
+        
+        # plt.figure("Climb")
+        # plt.plot(self.ts, self.altitude_list[1:])
+        return self.df
+
+
+
     def get_plot(self, data_list):
         # Now this get_plot function is the function other than def __init__. 
         # Treat it as a normal function. 
@@ -199,7 +294,7 @@ class Climb:
         plt.xlabel(title_xaxis)
         plt.ylabel(title_yaxis)
         plt.legend(title = "Altitude")
-        # plt.show()
+
     
 
     # Same rule applies to all functions below. 
@@ -211,7 +306,7 @@ class Climb:
         plt.title("Service Ceiling")
         plt.xlabel("Max Climb Rate [m/s]")
         plt.ylabel("Altitude [m]")
-        # plt.show()
+
     
     def best_RC_data(self):
         data = self.max_hdot_list
@@ -245,7 +340,7 @@ class Climb:
         fig.legend(
             handles, labels,
             loc='upper right',       # position
-            ncol=1,                   # number of columns
+            ncol=1,                  # number of columns
             title='Altitude',        # legend title
         )
 
@@ -283,11 +378,10 @@ class Climb:
         axs[2, 1].set_ylabel("Altitude [m]")
 
 
-        
+    
 
 
 
 
 
 
-# plt.show()
