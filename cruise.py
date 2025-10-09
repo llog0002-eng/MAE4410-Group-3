@@ -30,7 +30,7 @@ def cruise(aircraft):
     LD = 1/2*np.sqrt(1/(K*CD0))
     print('Max L/D: ', round(LD,2))
     
-    n = 5000 # Number of distance steps in cruise simulation
+    n = 1000 # Number of distance steps in cruise simulation
 
     cruise_dist = aircraft.range
 
@@ -91,7 +91,7 @@ def cruise(aircraft):
             # Flight path angle
             gamma = np.arcsin(aircraft.hdotceil/V)
             # CL at climb, assume small contribution from lift due to thrust
-            CL_C = 2 * aircraft.W * g / (rho * aircraft.S * V**2)
+            CL_C = 2 * aircraft.W * g / (rho * aircraft.S * V**2) / np.cos(gamma)
             # CD at climb
             CD_C = aircraft.CD0_C + aircraft.KC * CL_C**2
             # LD at climb

@@ -37,7 +37,7 @@ class aircraft_class:
     Vmax = Ma*c                 # Max speed requirement, m/s
     V_stall_max = 60            # Maximum stall speed, m/s
 
-    WTO = 106.7e3               # Maximum takeoff weight, kg
+    WTO = 109e3                 # Maximum takeoff weight, kg
     m_fuel = 26.2e3             # Maximum mass of fuel, kg
     W = WTO                     # Initial weight, kg
     hscreen = 50 * 0.3048       # Screen height, 50 ft (FAR 25), m
@@ -46,7 +46,7 @@ class aircraft_class:
 
     climbgrad_oei_landgear = 0  # Minimum climb gradient for one engine inoperative (OEI) with landing gear extended, CASA part 121, section 9.05
     climbgrad_oei_clean = 2/100 # Minimum climb gradient for one engine inoperative (OEI) with landing gear retracted, CASA part 121, section 9.05
-    hdotceil = 1                # Climb rate requirement for ceiling, typical value, m/s
+    hdotceil = 1                # Climb rate requirement for ceiling
 
     range = 8000e3              # Range requirement, m
     loiter_time = 30*60         # Loiter time requirement, s

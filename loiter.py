@@ -14,9 +14,9 @@ def loiter(aircraft):
     Tmax = aircraft.Tmax                            # Max continuous thrust, N
     V = aircraft.Vmax                               # Cruise speed requirement, m/s
     K = aircraft.KC                                 # Induced drag constant
-    CD0 = aircraft.CD0_C                            # Zero lift drag coefficient
-    CL0 = aircraft.CL0_C                            # Zero angle of attack lift coefficient
-    CLalpha = aircraft.CLalpha_C                    # Lift curve slope, per rad
+    CD0 = aircraft.CD0_DE                            # Zero lift drag coefficient
+    CL0 = aircraft.CL0_DE                            # Zero angle of attack lift coefficient
+    CLalpha = aircraft.CLalpha_DE                    # Lift curve slope, per rad
 
     loiterh = aircraft.altitude
     T, P, rhorho0, c = ISA(loiterh)
