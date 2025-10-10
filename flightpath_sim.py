@@ -78,9 +78,10 @@ class aircraft_class:
     """
     Aerodynamic Dependent
     """
-    h = 3                        # Distance of wing above the ground, m
-    b = 60.2                     # Wing span, m
-    S = 386                      # Wing area, m2
+    h = 3                       # Distance of wing above the ground, m
+    b = 60.2                    # Wing span, m
+    S = 386                     # Wing area, m2
+    c = 5.14668                 # mean geometric chord of the wing, m
 
     KTO = 0.0868                  # Induced drag constant, takeoff
     KC = 0.0868                   # Induced drag constant, cruise
@@ -89,8 +90,8 @@ class aircraft_class:
     CL0_TO = 1
     CD0_TO = 0.0087 + 0.004212  # Added for landing gear drag
     CLalpha_TO = 2.835          # Lift curve slope, per rad
-    CL_max = 0.72
-    CL_min = -0.55
+    CL_max_TO = 0.72
+    CL_min_TO = -0.55
 
     ### Climb
     CL0_CL = 0.1219
@@ -226,38 +227,38 @@ totdf = pd.concat(dfs)
 
 #region // Plotting
 
-plotdf = climbdf
+# plotdf = climbdf
 
-fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
+# fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
 
-axs[0,0].plot(plotdf["time"],plotdf["altitude"]/1e3,label = "Altitude [km]",color='blue')
-axs[0,0].plot(plotdf["time"],plotdf["optimal altitude"]/1e3,label = "Optimal altitude [km]",color='cyan')
-axs[0,1].plot(plotdf["time"],plotdf["AoA"]*180/np.pi,label = "Angle of attack [deg]",color='red')
-axs[0,1].plot(plotdf["time"],plotdf["theta"]*180/np.pi,label="Pitch angle [deg]",color="blue",linestyle="--")
-axs[1,0].plot(plotdf["time"],plotdf["L/D"],label = "L/D ratio",color='green')
-axs[1,1].plot(plotdf["time"],plotdf["mass"]/1e3,label = "Weight [t]",color='orange')
-axs[2,0].plot(plotdf["time"],plotdf["throttle"],label = "Throttle setting",color='purple')
-axs[2,1].plot(plotdf["time"],plotdf["speed"],label = "TAS [m/s]",color='brown')
+# axs[0,0].plot(plotdf["time"],plotdf["altitude"]/1e3,label = "Altitude [km]",color='blue')
+# axs[0,0].plot(plotdf["time"],plotdf["optimal altitude"]/1e3,label = "Optimal altitude [km]",color='cyan')
+# axs[0,1].plot(plotdf["time"],plotdf["AoA"]*180/np.pi,label = "Angle of attack [deg]",color='red')
+# axs[0,1].plot(plotdf["time"],plotdf["theta"]*180/np.pi,label="Pitch angle [deg]",color="blue",linestyle="--")
+# axs[1,0].plot(plotdf["time"],plotdf["L/D"],label = "L/D ratio",color='green')
+# axs[1,1].plot(plotdf["time"],plotdf["mass"]/1e3,label = "Weight [t]",color='orange')
+# axs[2,0].plot(plotdf["time"],plotdf["throttle"],label = "Throttle setting",color='purple')
+# axs[2,1].plot(plotdf["time"],plotdf["speed"],label = "TAS [m/s]",color='brown')
 
-axs[2,1].ticklabel_format(useOffset=False, style='plain')
+# axs[2,1].ticklabel_format(useOffset=False, style='plain')
 
-axs[0,0].set_ylabel("Altitude [km]")
-axs[0,1].set_ylabel("Angle of attack [deg]")
-axs[1,0].set_ylabel("L/D ratio")
-axs[1,1].set_ylabel("Weight [t]")
-axs[2,0].set_ylabel("Throttle setting")
-axs[2,1].set_ylabel("Velocity [m/s]")
+# axs[0,0].set_ylabel("Altitude [km]")
+# axs[0,1].set_ylabel("Angle of attack [deg]")
+# axs[1,0].set_ylabel("L/D ratio")
+# axs[1,1].set_ylabel("Weight [t]")
+# axs[2,0].set_ylabel("Throttle setting")
+# axs[2,1].set_ylabel("Velocity [m/s]")
 
-axs[2,0].set_xlabel("Time [s]")
-axs[2,1].set_xlabel("Time [s]")
+# axs[2,0].set_xlabel("Time [s]")
+# axs[2,1].set_xlabel("Time [s]")
 
-axs[0,0].legend()
-axs[0,1].legend()
+# axs[0,0].legend()
+# axs[0,1].legend()
 
-mpl.rc("savefig", dpi=300)
-plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
+# mpl.rc("savefig", dpi=300)
+# plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
 
-fig.suptitle("Climb")
+# fig.suptitle("Climb")
 
 Vn_diagram(aircraft,1)
 
