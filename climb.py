@@ -8,7 +8,7 @@ from tabulate import tabulate
 ### Bit explanation about class
 # Class takes inputs, e.g. start, end, increment... below. But "self" is not an input.
 class Climb:
-    def __init__(self, aircraft, start, end, increment, tolerence, step):
+    def __init__(self, aircraft, start, end, increment, tolerence, step, takeoffdf):
         
         # U might notice that most of the code are under this def __init__ function, can just treat it as a normal function
         # when u see self.XX means this variable will be stored inside the class, u can access them at any time
@@ -139,10 +139,6 @@ class Climb:
             max_hdot_AoA = self.AoA_list[-1][i][max_hdot_index]
             max_hdot_CL = self.CL_list[-1][i][max_hdot_index]
             max_hdot_CD = self.CD_list[-1][i][max_hdot_index]
-
-            # alpha_list[i] = max_hdot_AoA*np.pi/180
-            # theta_list[i] = max_hdot_theta*np.pi/180
-            # Vs[i] = max_hdot_V
             self.max_hdot_list.append([self.altitude_list[i], max_hdot, max_hdot_index, max_hdot_V, max_hdot_theta, max_hdot_gamma, max_hdot_AoA, max_hdot_CL, max_hdot_CD])
 
             max_thetae = np.max(theta_CL_list[i])
@@ -161,113 +157,122 @@ class Climb:
         Horiz_dis_CL = []
         Time_accel = []
         Horiz_dis_accel = []
-        W_fuel_list = np.zeros((len(c_list)-1)*2)
-        throttles = np.zeros((len(c_list)-1)*2)
-        LDs = np.zeros((len(c_list)-1)*2)
-        ts = np.zeros((len(c_list)-1)*2)
-        true_altitude = np.zeros((len(c_list)-1)*2)
-        dist = np.zeros((len(c_list)-1)*2)
-        m = np.zeros((len(c_list)-1)*2)
-        alpha_list = np.zeros((len(c_list)-1)*2)
-        theta_list = np.zeros((len(c_list)-1)*2)
-        Vs = np.zeros((len(c_list)-1)*2)
+        W_fuel_list = np.zeros(len(c_list)*2-1)
+        throttles = np.zeros(len(c_list)*2-1)
+        throttles[0] = np.array(takeoffdf["throttle"])[-1]
+        LDs = np.zeros(len(c_list)*2-1)
+        LDs[0] = np.array(takeoffdf["L/D"])[-1]
+        ts = np.zeros(len(c_list)*2-1)
+        ts[0] = 0
+        true_altitude = np.zeros(len(c_list)*2-1)
+        true_altitude[0] = np.array(takeoffdf["altitude"])[-1]
+        dist = np.zeros(len(c_list)*2-1)
+        dist[0] = 0
+        m = np.zeros(len(c_list)*2-1)
+        m[0] = self.W_CL/aircraft.g
+        alpha_list = np.zeros(len(c_list)*2-1)
+        alpha_list[0] = np.array(takeoffdf["AoA"])[-1]
+        theta_list = np.zeros(len(c_list)*2-1)
+        theta_list[0] = np.array(takeoffdf["theta"])[-1]
+        Vs = np.zeros(len(c_list)*2-1)
+        Vs[0] = np.array(takeoffdf["speed"])[-1]
         
 
         dis = 0
         t = 0
         W_fuel_used = 0
-        V_new = aircraft.V2
-        for i in range(len(c_list)-1):
-            if i == 21:
-                print('now')
+        V_new = Vs[0]
+        for i in range(len(c_list)):
             # Get the max R/C of current altitude and corresponding airspeed, gamma, AoA...
             altitude = self.altitude_list[i]
             max_hdot_index = self.max_hdot_list[i][2]
             max_hdot_V = self.max_hdot_list[i][3]
             max_hdot = self.max_hdot_list[i][1]
             max_hdot_theta1 = self.theta_CL_list[-1][i][max_hdot_index]*np.pi/180
-            # max_hdot_theta2 = self.theta_CL_list[-1][i+1][max_hdot_index]*np.pi/180
             max_hdot_gamma = self.gamma_CL_list[-1][i][max_hdot_index]*np.pi/180
             max_hdot_AoA1 = self.AoA_list[-1][i][max_hdot_index]*np.pi/180
-            # max_hdot_AoA2 = self.AoA_list[-1][i+1][max_hdot_index]*np.pi/180
             T1 = self.Thrust_list[-1][i][max_hdot_index]
             D1 = self.Drag_list[-1][i][max_hdot_index]
             CL1 = self.CL_list[-1][i][max_hdot_index]
             CD1 = self.CD_list[-1][i][max_hdot_index]
             LD1 = CL1/CD1
             mf_dot = aircraft.TSFC_TO*10**(-6)*T1
-
-            # T2 = self.Thrust_list[-1][i+1][max_hdot_index]
-            # D2 = self.Drag_list[-1][i+1][max_hdot_index]
-            # CL2 = self.CL_list[-1][i+1][max_hdot_index]
-            # CD2 = self.CD_list[-1][i+1][max_hdot_index]
-            # LD2 = CL2/CD2
             
             throttle1 = alphae_CL_list[-1][i][max_hdot_index]
-            # throttle2 = alphae_CL_list[-1][i+1][max_hdot_index]
             
 
             # Time to accelerate and Horizontal distance covered
-            V_old = V_new
-            V_new = max_hdot_V
-            dV = np.abs(V_new - V_old)
+            if i < len(c_list)-1:
+                V_old = V_new
+                V_new = max_hdot_V
+                dV = np.abs(V_new - V_old)
 
-            dt_accel = self.W_CL/aircraft.g*dV / (T1-D1)
-            dSC_accel = dV*dt_accel/2
-            t += dt_accel
-            dis += dSC_accel
-            W_fuel_used += mf_dot*dt_accel*aircraft.g
-            self.W_CL -= W_fuel_used
+                if i == 0:
+                    dt_accel = 0
+                    dSC_accel = 0
+                    V_step = 0.1
+                    V_current = V_old
+                    while V_current < V_new:
+                        dt_accel += self.W_CL/aircraft.g*V_step / (T1 - 0.5*aircraft.rho0*V_current**2*aircraft.S*(aircraft.CD0_CL+K*CL**2))
+                        dSC_accel += V_step*dt_accel/2
+                        V_current += V_step
+                    W_fuel_used = mf_dot*dt_accel*aircraft.g
+                    self.W_CL -= W_fuel_used
+                else:
+                    dt_accel = self.W_CL/aircraft.g*dV / (T1-D1)
+                    dSC_accel = dV*dt_accel/2
+                    W_fuel_used = mf_dot*dt_accel*aircraft.g
+                    self.W_CL -= W_fuel_used
+
+                t += dt_accel
+                dis += dSC_accel
+                
 
 
-            Time_accel.append(dt_accel)
-            Horiz_dis_accel.append(dSC_accel)
-            ts[i*2] = t
-            true_altitude[i*2] = altitude
-            dist[i*2] = dis
-            m[i*2] = self.W_CL/(aircraft.g)
-            Vs[i*2] = V_old
-            throttles[i*2] = throttle1
-            W_fuel_list[i*2] = W_fuel_used
-            LDs[i*2] = LD1
-            alpha_list[i*2] = max_hdot_AoA1
-            theta_list[i*2] = max_hdot_theta1
-            if i > 0:
-                LDs[i*2-1] = LD1
-                alpha_list[i*2-1] = max_hdot_AoA1
-                theta_list[i*2-1] = max_hdot_theta1
-                throttles[i*2-1] = throttle1
-
-            if i == len(c_list)-1 - 1:
+                Time_accel.append(dt_accel)
+                Horiz_dis_accel.append(dSC_accel)
+                ts[i*2+1] = t
+                true_altitude[i*2+1] = altitude
+                dist[i*2+1] = dis
+                m[i*2+1] = self.W_CL/(aircraft.g)
+                Vs[i*2+1] = V_new
+                throttles[i*2+1] = throttle1
+                W_fuel_list[i*2+1] = W_fuel_used
                 LDs[i*2+1] = LD1
                 alpha_list[i*2+1] = max_hdot_AoA1
                 theta_list[i*2+1] = max_hdot_theta1
-                throttles[i*2+1] = throttle1
+            if i > 0:
+                true_altitude[i*2] = altitude
+                LDs[i*2] = LD1
+                alpha_list[i*2] = max_hdot_AoA1
+                theta_list[i*2] = max_hdot_theta1
+                throttles[i*2] = throttle1
+
+                # if i == len(c_list)-1 - 1:
+                #     LDs[i*2+1] = LD1
+                #     alpha_list[i*2+1] = max_hdot_AoA1
+                #     theta_list[i*2+1] = max_hdot_theta1
+                #     throttles[i*2+1] = throttle1
 
                 
             
 
             # Time to climb and Horizontal distance covered
-            altitude = self.altitude_list[i+1]
             dt_CL = increment/max_hdot
             dSC_CL = max_hdot_V*np.cos(max_hdot_gamma)*dt_CL
             t += dt_CL
             dis += dSC_CL
-            W_fuel_used += mf_dot*dt_CL*aircraft.g
+            W_fuel_used = mf_dot*dt_CL*aircraft.g
             self.W_CL -= W_fuel_used
 
-            Time_CL.append(dt_CL)
-            Horiz_dis_CL.append(dSC_CL)
-            ts[i*2+1] = t
-            true_altitude[i*2+1] = self.altitude_list[i+1]
-            dist[i*2+1] = dis
-            m[i*2+1] = self.W_CL/(aircraft.g)
-            # LDs[i*2+1] = LD2
-            # alpha_list[i*2+1] = max_hdot_AoA2
-            # theta_list[i*2+1] = max_hdot_theta2
-            Vs[i*2+1] = V_new
-            # throttles[i*2+1] = throttle2
-            W_fuel_list[i*2+1] = W_fuel_used
+            if i != len(c_list)-1:
+                Time_CL.append(dt_CL)
+                Horiz_dis_CL.append(dSC_CL)
+                ts[i*2+2] = t
+                dist[i*2+2] = dis
+                m[i*2+2] = self.W_CL/(aircraft.g)
+                Vs[i*2+2] = V_new
+                W_fuel_list[i*2+2] = W_fuel_used
 
             
 
@@ -281,7 +286,6 @@ class Climb:
         self.W_fuel_list = np.array(W_fuel_list)
 
         
-        n = (len(c_list)-1)*2
         self.df = pd.DataFrame(
             {
                 "distance": dist,
@@ -291,7 +295,7 @@ class Climb:
                 "time": ts,
                 "altitude": true_altitude,
                 "speed": Vs,
-                "optimal altitude": np.full(n, np.nan),
+                "optimal altitude": np.full(len(c_list)*2-1, np.nan),
                 "throttle": throttles,
                 "theta": theta_list,
             }
@@ -301,7 +305,7 @@ class Climb:
 
 
     def get_flight_sim(self, aircraft):
-        print(f'\nFuel consumption during the climb is {self.W_fuel_list[-1]/(aircraft.g*1000)} t.\
+        print(f'\nFuel consumption during the climb is {np.sum(self.W_fuel_list)/(aircraft.g*1000)} t.\
         \nThe final weight is {self.W_CL[0]/(aircraft.g*1000)} t\
         \nTotal time is {(np.sum(self.Time_CL) + np.sum(self.Time_accel))/60} mins\n')
         

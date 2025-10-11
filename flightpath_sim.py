@@ -168,7 +168,7 @@ takeoffdf = takeoff(aircraft)
 
 
 # #region // Climb
-climb = Climb(aircraft, 0, 11000, 500, 0.0001, 1)
+climb = Climb(aircraft, 0, 11000, 500, 0.0001, 1, takeoffdf)
 # climb.best_RC_data()
 # climb.best_AC_data()
 # climb.get_plot(climb.hdot_list)
@@ -270,7 +270,7 @@ plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
 
 fig.suptitle("Climb")
 
-Vn_diagram(aircraft,1)
+Vn_diagram(aircraft,0.1)
 
 plt.show()
 
