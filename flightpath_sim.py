@@ -100,9 +100,9 @@ class aircraft_class:
     CL_min_TO = -0.6082
 
     ### Climb
-    CL0_CL = 0.1219
+    CL0_CL = 0.1364
     CD0_CL = 0.0049
-    CLalpha_CL = 0.0412*180/np.pi           # Lift curve slope, per rad
+    CLalpha_CL = 0.0415*180/np.pi           # Lift curve slope, per rad
 
     ### Cruise
     CL0_C = CL0_CL
