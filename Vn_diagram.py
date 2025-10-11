@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 def Vn_diagram(aircraft, step):
     VS1 = aircraft.V_stall_TO        # Stall velocity at takeoff, m/s
-    # VS0 = 
+    VS0 = aircraft.V_stall_LA
     Uref_array = np.array([56 / 3.281, 28 / 3.281])      # m/s
     W_array = np.array([aircraft.Wmax * aircraft.betaw_taxi, aircraft.Wmax * aircraft.betaw_descent])
     S = aircraft.S
@@ -47,7 +47,7 @@ def Vn_diagram(aircraft, step):
 
 
     CL_max = aircraft.CL_max_TO
-    CL_min = aircraft.CL_min_TO
+    CL_min = aircraft.CL_min_LA
     V_corner_pos = np.sqrt(2 * W_array[0] * n_pos_limit / (rho * S * CL_max))
     V_corner_neg = np.sqrt(2 * W_array[0] * n_neg_limit / (rho * S * CL_min))
 
@@ -97,8 +97,10 @@ def Vn_diagram(aircraft, step):
 
     # Full limit lines
     plt.axvline(x = VD, color = 'k', linestyle = '-', label = "V_D")
-    plt.axvline(x = VS1, ymin = 2/5, ymax = 0.495, color = 'k', linestyle = '-')
+    plt.axvline(x = VS1, ymin = 2/5, ymax = 0.47, color = 'k', linestyle = '-')
+    plt.axvline(x = VS0, ymin = 0.23, ymax = 1.99/5, color = 'k', linestyle = '-')
     plt.text(VS1+1, 0.2, 'VS1')
+    plt.text(VS0+1, -0.5, 'VS0')
     plt.text(VA_array[0], 1, 'VA')
     plt.text(V_corner_pos, 1, 'V_corner')
     plt.axhline(y=nstall_pos_list[-1], xmin=vair_stall_pos[-1]/(50+VD), xmax=VD/(50+VD), color='r', linestyle='-', label="+Structural limit")

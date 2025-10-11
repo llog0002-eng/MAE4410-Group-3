@@ -90,8 +90,8 @@ class aircraft_class:
     CL0_TO = 1
     CD0_TO = 0.0087 + 0.004212  # Added for landing gear drag
     CLalpha_TO = 2.835          # Lift curve slope, per rad
-    CL_max_TO = 0.72
-    CL_min_TO = -0.55
+    CL_max_TO = 0.5456
+    CL_min_TO = -0.6082
 
     ### Climb
     CL0_CL = 0.1219
@@ -102,6 +102,8 @@ class aircraft_class:
     CL0_C = CL0_CL
     CD0_C = CD0_CL
     CLalpha_C = CLalpha_CL              # Lift curve slope, per rad
+    CL_max_C = 0.5381
+    CL_min_C = -0.5690
 
     ### Loiter
     CL0_LO = CL0_C
@@ -117,6 +119,8 @@ class aircraft_class:
     CL0_LA = 1.5
     CD0_LA = 0.0087 + 0.004212  # Added for landing gear drag
     CLalpha_LA = 2.835           # Lift curve slope, per rad
+    CL_max_LA = 0.5456
+    CL_min_LA = -0.6082
 
     """
     Takeoff Data
@@ -143,6 +147,12 @@ class aircraft_class:
     n_pos_limit = 3.5
     n_neg_limit = -1.5
 
+    """
+    Landing Data
+    """
+    W_LA = Wmax*betaw_descent
+    V_stall_LA = np.sqrt(2 * (W_LA/S) / (rho0*CL_max_LA))
+
     
 aircraft = aircraft_class()
 
@@ -158,7 +168,7 @@ takeoffdf = takeoff(aircraft)
 
 
 # #region // Climb
-climb = Climb(aircraft, 0, 12000, 500, 0.0001, 1)
+climb = Climb(aircraft, 0, 11000, 500, 0.0001, 1)
 # climb.best_RC_data()
 # climb.best_AC_data()
 # climb.get_plot(climb.hdot_list)
@@ -227,38 +237,38 @@ totdf = pd.concat(dfs)
 
 #region // Plotting
 
-# plotdf = climbdf
+plotdf = climbdf
 
-# fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
+fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
 
-# axs[0,0].plot(plotdf["time"],plotdf["altitude"]/1e3,label = "Altitude [km]",color='blue')
-# axs[0,0].plot(plotdf["time"],plotdf["optimal altitude"]/1e3,label = "Optimal altitude [km]",color='cyan')
-# axs[0,1].plot(plotdf["time"],plotdf["AoA"]*180/np.pi,label = "Angle of attack [deg]",color='red')
-# axs[0,1].plot(plotdf["time"],plotdf["theta"]*180/np.pi,label="Pitch angle [deg]",color="blue",linestyle="--")
-# axs[1,0].plot(plotdf["time"],plotdf["L/D"],label = "L/D ratio",color='green')
-# axs[1,1].plot(plotdf["time"],plotdf["mass"]/1e3,label = "Weight [t]",color='orange')
-# axs[2,0].plot(plotdf["time"],plotdf["throttle"],label = "Throttle setting",color='purple')
-# axs[2,1].plot(plotdf["time"],plotdf["speed"],label = "TAS [m/s]",color='brown')
+axs[0,0].plot(plotdf["time"],plotdf["altitude"]/1e3,label = "Altitude [km]",color='blue')
+axs[0,0].plot(plotdf["time"],plotdf["optimal altitude"]/1e3,label = "Optimal altitude [km]",color='cyan')
+axs[0,1].plot(plotdf["time"],plotdf["AoA"]*180/np.pi,label = "Angle of attack [deg]",color='red')
+axs[0,1].plot(plotdf["time"],plotdf["theta"]*180/np.pi,label="Pitch angle [deg]",color="blue",linestyle="--")
+axs[1,0].plot(plotdf["time"],plotdf["L/D"],label = "L/D ratio",color='green')
+axs[1,1].plot(plotdf["time"],plotdf["mass"]/1e3,label = "Weight [t]",color='orange')
+axs[2,0].plot(plotdf["time"],plotdf["throttle"],label = "Throttle setting",color='purple')
+axs[2,1].plot(plotdf["time"],plotdf["speed"],label = "TAS [m/s]",color='brown')
 
-# axs[2,1].ticklabel_format(useOffset=False, style='plain')
+axs[2,1].ticklabel_format(useOffset=False, style='plain')
 
-# axs[0,0].set_ylabel("Altitude [km]")
-# axs[0,1].set_ylabel("Angle of attack [deg]")
-# axs[1,0].set_ylabel("L/D ratio")
-# axs[1,1].set_ylabel("Weight [t]")
-# axs[2,0].set_ylabel("Throttle setting")
-# axs[2,1].set_ylabel("Velocity [m/s]")
+axs[0,0].set_ylabel("Altitude [km]")
+axs[0,1].set_ylabel("Angle of attack [deg]")
+axs[1,0].set_ylabel("L/D ratio")
+axs[1,1].set_ylabel("Weight [t]")
+axs[2,0].set_ylabel("Throttle setting")
+axs[2,1].set_ylabel("Velocity [m/s]")
 
-# axs[2,0].set_xlabel("Time [s]")
-# axs[2,1].set_xlabel("Time [s]")
+axs[2,0].set_xlabel("Time [s]")
+axs[2,1].set_xlabel("Time [s]")
 
-# axs[0,0].legend()
-# axs[0,1].legend()
+axs[0,0].legend()
+axs[0,1].legend()
 
-# mpl.rc("savefig", dpi=300)
-# plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
+mpl.rc("savefig", dpi=300)
+plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
 
-# fig.suptitle("Climb")
+fig.suptitle("Climb")
 
 Vn_diagram(aircraft,1)
 
