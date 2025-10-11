@@ -9,6 +9,7 @@ from climb import Climb
 from cruise import cruise
 from loiter import loiter
 from descent import descent
+from landing import landing
 
 from range import Range
 from Vn_diagram import Vn_diagram
@@ -37,6 +38,7 @@ class aircraft_class:
 
     Vmax = Ma*c                 # Max speed requirement, m/s
     V_stall_max = 60            # Maximum stall speed, m/s
+    V = 0                       # Current velocity variable
 
     WTO = 109e3                 # Maximum takeoff weight, kg
     m_fuel = 26.2e3             # Maximum mass of fuel, kg
@@ -44,16 +46,20 @@ class aircraft_class:
     hscreen = 50 * 0.3048       # Screen height, 50 ft (FAR 25), m
     muwet = 0.05                # Friction coefficient for wet sealed
     mudry = 0.03                # Friction coefficient for dry sealed
+    mutyre = 0.4                # Worst case tyre friction coefficient
 
     climbgrad_oei_landgear = 0  # Minimum climb gradient for one engine inoperative (OEI) with landing gear extended, CASA part 121, section 9.05
     climbgrad_oei_clean = 2/100 # Minimum climb gradient for one engine inoperative (OEI) with landing gear retracted, CASA part 121, section 9.05
     hdotceil = 1                # Climb rate requirement for ceiling
+    screenh = 50*0.3048         # Landing screen height, m
 
     range = 8000e3              # Range requirement, m
     loiter_time = 30*60         # Loiter time requirement, s
     cruise_climb_inc = 300      # Altitude increment for cruise climb, m
     descent_gamma = 3           # Typical descent angle, deg (https://books.google.com.au/books?id=ZmTfH0bYz_YC&redir_esc=y)
     descent_hdot = 13           # Typical descent speed, m/s (https://pilotinstitute.com/how-to-calculate-descent)
+    Vland = 145*0.5144          # Landing speed, m/s (from 145 kt from RFP)
+    hdot_land = 1.5             # Vertical speed before flare, m/s
 
     g = 9.80665                 # Gravitational acceleration m2/s
     Wmax = WTO*g
@@ -78,25 +84,25 @@ class aircraft_class:
     """
     Aerodynamic Dependent
     """
-    h = 3                       # Distance of wing above the ground, m
-    b = 60.2                    # Wing span, m
-    S = 386                     # Wing area, m2
+    h = 1.1                       # Distance of wing above the ground, m
+    b = 40.62                    # Wing span, m
+    S = 394                     # Wing area, m2
     c = 5.14668                 # mean geometric chord of the wing, m
 
-    KTO = 0.0868                  # Induced drag constant, takeoff
-    KC = 0.0868                   # Induced drag constant, cruise
+    KTO = 0.0868                # Induced drag constant, takeoff
+    KC = 0.0868                 # Induced drag constant, cruise
 
     ### Take Off
-    CL0_TO = 1
-    CD0_TO = 0.0087 + 0.004212  # Added for landing gear drag
-    CLalpha_TO = 2.835          # Lift curve slope, per rad
+    CL0_TO = 1.5
+    CD0_TO = 0.0087 + 0.004212    # Added for landing gear drag
+    CLalpha_TO = 0.0342*180/np.pi # Lift curve slope, per rad
     CL_max_TO = 0.5456
     CL_min_TO = -0.6082
 
     ### Climb
     CL0_CL = 0.1219
     CD0_CL = 0.0049
-    CLalpha_CL = 3.323           # Lift curve slope, per rad
+    CLalpha_CL = 0.0412*180/np.pi           # Lift curve slope, per rad
 
     ### Cruise
     CL0_C = CL0_CL
@@ -116,9 +122,9 @@ class aircraft_class:
     CLalpha_DE = CLalpha_C           # Lift curve slope, per rad
 
     ### Landing
-    CL0_LA = 1.5
-    CD0_LA = 0.0087 + 0.004212  # Added for landing gear drag
-    CLalpha_LA = 2.835           # Lift curve slope, per rad
+    CL0_LA = CL0_TO
+    CD0_LA = CD0_TO  # Added for landing gear drag
+    CLalpha_LA = CLalpha_TO           # Lift curve slope, per rad
     CL_max_LA = 0.5456
     CL_min_LA = -0.6082
 
@@ -210,19 +216,24 @@ descentdf = descent(aircraft)
 
 descentmratio = descentdf.iloc[-1]["mass"]/descentdf.iloc[0]["mass"]
 descenttime = descentdf.iloc[-1]["time"]/3600
-print(f"descent weight ratio: {descentmratio:.3f}")
-print(f"descent time: {descenttime:.1f} hours")
+print(f"Descent weight ratio: {descentmratio:.3f}")
+print(f"Descent time: {descenttime:.1f} hours")
 #endregion
 
 
 #region // Landing
+landingdf = landing(aircraft)
 
+landingmratio = landingdf.iloc[-1]["mass"]/landingdf.iloc[0]["mass"]
+landingtime = landingdf.iloc[-1]["time"]/3600
+print(f"landing weight ratio: {landingmratio:.3f}")
+print(f"landing time: {landingtime:.1f} hours")
 #endregion
 
 
 #region // Combining data
 
-dfs = [takeoffdf, climbdf, cruisedf, loiterdf, descentdf]
+dfs = [takeoffdf, climbdf, cruisedf, loiterdf, descentdf, landingdf]
 
 # Update each df's starting time/distance from the previous df's end time/distance
 for i in range(len(dfs)-1):
@@ -237,7 +248,7 @@ totdf = pd.concat(dfs)
 
 #region // Plotting
 
-plotdf = climbdf
+plotdf = totdf
 
 fig,axs = plt.subplots(3,2, sharex=True, figsize=(10,6))
 
@@ -268,7 +279,7 @@ axs[0,1].legend()
 mpl.rc("savefig", dpi=300)
 plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
 
-fig.suptitle("Climb")
+fig.suptitle("Landing")
 
 Vn_diagram(aircraft,1)
 
