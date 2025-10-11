@@ -279,7 +279,7 @@ axs[0,1].legend()
 mpl.rc("savefig", dpi=300)
 plt.savefig("../../Cruise Performance.png", bbox_inches='tight')
 
-fig.suptitle("Landing")
+fig.suptitle("Flight Simulation")
 
 Vn_diagram(aircraft,0.1)
 

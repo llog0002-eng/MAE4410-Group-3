@@ -169,7 +169,7 @@ class Climb:
         dist = np.zeros(len(c_list)*2-1)
         dist[0] = 0
         m = np.zeros(len(c_list)*2-1)
-        m[0] = self.W_CL/aircraft.g
+        m[0] = np.array(takeoffdf["mass"])[-1]
         alpha_list = np.zeros(len(c_list)*2-1)
         alpha_list[0] = np.array(takeoffdf["AoA"])[-1]
         theta_list = np.zeros(len(c_list)*2-1)
