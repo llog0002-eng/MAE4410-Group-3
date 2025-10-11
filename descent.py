@@ -24,7 +24,7 @@ def descent(aircraft):
     V = hdot/np.sin(gamma)                          # Descent velocity, m/s
 
     n = 500 # Number of distance steps
-    t_descent = aircraft.altitude/hdot # Descent time, s
+    t_descent = (aircraft.altitude-aircraft.screenh)/hdot # Descent time, s
     dt=t_descent/n # Timestep, s
 
     # Preallocate arrays
@@ -85,6 +85,7 @@ def descent(aircraft):
 
 
     aircraft.altitude = hs[n-1]
+    aircraft.V = Vs[n-1]
 
     df = pd.DataFrame(
         {

@@ -35,7 +35,7 @@ def takeoff(aircraft):
     while err > 0.001 or altitude[i] < aircraft.hscreen:
         j += 1 # Outer while loop iteration count
 
-        n = 5000 # Number of points to initialise
+        n = 1000 # Number of points to initialise
         dist = np.zeros(n)
         m = np.zeros(n)
         LDs = np.zeros(n)
@@ -59,7 +59,7 @@ def takeoff(aircraft):
             if i > n:
                 raise Exception("Takeoff iteration count passed datapoint preallocation size")
             
-            CL = W_TO/np.cos(theta_TO) / (0.5*aircraft.rho0*Vs[i]**2*aircraft.S)
+            CL = aircraft.W * g/np.cos(theta_TO) / (0.5*aircraft.rho0*Vs[i]**2*aircraft.S)
             CD = aircraft.CD0_TO + aircraft.KTO*CL**2
             LDs[i] = CL/CD
             D = 0.5*aircraft.rho0*Vs[i]**2*aircraft.S*CD
@@ -67,7 +67,7 @@ def takeoff(aircraft):
             alpha[i+1] = (CL - aircraft.CL0_TO) / aircraft.CLalpha_TO  # Angle of attack, rad
             gamma_TO = theta_TO - alpha[i+1] # Flight path angle, rad
 
-            Vs[i+1] = Vs[i] + (T_TO - D - W_TO*np.sin(gamma_TO))/(W_TO/g) * dt
+            Vs[i+1] = Vs[i] + (T_TO - D - aircraft.W*g*np.sin(gamma_TO))/(aircraft.W) * dt
             dist[i+1] = dist[i] + Vs[i]*np.cos(gamma_TO)*dt
             hdot_TO = Vs[i]*np.sin(gamma_TO)
             altitude[i+1] = altitude[i] + hdot_TO*dt
